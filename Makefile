@@ -4,10 +4,10 @@ fmt:
 	go fmt *.go
 
 build: fmt
-	go build reporter.go
+	go build *.go
 
 run: fmt
-	go run reporter.go
+	go run *.go
 
 install: build
 #	sudo install -p -m755 slack_channel_list /usr/local/bin
@@ -21,4 +21,4 @@ rpm: fmt
 	scp reporter root@spike:
 
 clean:
-	rm -f reporter
+	rm -f reporter mqttfun
