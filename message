@@ -1,0 +1,27 @@
+{
+  "Hostname": "fred",
+  "Ip": "192.168.1.206",
+  "UpdatesAvailable": true,
+  "Uptime": " 05:00:59 up 10 days,  7:36,  1 user,  load average: 0.01, 0.03, 0.00",
+  "OS": "Debian GNU/Linux 10 (buster)",
+  "OSfamily": "debian",
+  "OSversion": "10",
+  "Architecture": "armv7l",
+  "Packages": [
+    {
+      "Name": "curl/stable",
+      "Version": "7.64.0-4+deb10u1",
+      "Source": "apt"
+    },
+    {
+      "Name": "libcurl3-gnutls/stable",
+      "Version": "7.64.0-4+deb10u1",
+      "Source": "apt"
+    },
+    {
+      "Name": "libcurl4/stable",
+      "Version": "7.64.0-4+deb10u1",
+      "Source": "apt"
+    }
+  ]
+}
