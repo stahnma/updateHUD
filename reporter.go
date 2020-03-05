@@ -28,11 +28,11 @@ type Updater struct {
 	UpdatesAvailable bool
 	Uptime           string
 	//ConsulOnline     bool
-	OS           string
-	OSfamily     string
-	OSversion    string
-	Architecture string
-	Packages     []pkg
+	OS             string
+	OSfamily       string
+	OSversion      string
+	Architecture   string
+	PendingUpdates []pkg
 }
 
 func getOSinfo() {
@@ -176,7 +176,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		Ip:               myip(),
 		UpdatesAvailable: hasupdates(packagesack),
 		Uptime:           uptime(),
-		Packages:         packagesack,
+		PendingUpdates:   packagesack,
 	}
 	jresp, err := json.Marshal(response)
 	if err != nil {
