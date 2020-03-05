@@ -2,12 +2,12 @@
   "Hostname": "fred",
   "Ip": "192.168.1.206",
   "UpdatesAvailable": true,
-  "Uptime": " 05:00:59 up 10 days,  7:36,  1 user,  load average: 0.01, 0.03, 0.00",
+  "Uptime": " 05:04:56 up 10 days,  7:40,  1 user,  load average: 0.08, 0.02, 0.01",
   "OS": "Debian GNU/Linux 10 (buster)",
   "OSfamily": "debian",
   "OSversion": "10",
   "Architecture": "armv7l",
-  "Packages": [
+  "PendingUpdates": [
     {
       "Name": "curl/stable",
       "Version": "7.64.0-4+deb10u1",

@@ -22,3 +22,6 @@ rpm: fmt
 
 clean:
 	rm -f reporter mqttfun
+
+json:
+	cat message | jq > m ; mv m message
