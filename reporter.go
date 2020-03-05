@@ -1,5 +1,7 @@
 package main
 
+//TODO might want to add number of updates available
+
 import (
 	"bufio"
 	"encoding/json"
@@ -42,6 +44,32 @@ func getOSinfo() {
 			log.Fatalf("Error loading .env file")
 		}
 	}
+	//   System Version: macOS 10.14.6 (18G87)
+	//   system_profiler SPSoftwareDataType  | grep "System Version"
+	if runtime.GOOS == "darwin" {
+		os.Setenv("ID", "Darwin")
+		os.Setenv("", "macOS")
+		// os.Getenv("PRETTY_NAME"),
+		// OSversion:        os.Getenv("VERSION_ID"),
+		var out []byte
+		var err error
+		out, err = exec.Command("/usr/sbin/system_profiler", "SPSoftwareDataType").CombinedOutput()
+		if err != nil {
+			log.Fatal(err)
+		}
+		scanner := bufio.NewScanner(strings.NewReader(string(out)))
+		for scanner.Scan() {
+			line := scanner.Text()
+			if !(strings.Contains(line, "System Version")) {
+				continue
+			}
+			os.Setenv("PRETTY_NAME", line)
+			os.Setenv("VERSION_ID", strings.Fields(line)[3])
+			//			fmt.Println(scanner.Text())
+		}
+		//		fmt.Println(string(out))
+	}
+
 }
 
 func myip() string {
@@ -141,12 +169,24 @@ func outdated() []pkg {
 			if err != nil {
 				fmt.Println(err)
 			}
-			if err == nil {
-				out = nil
+			scanner := bufio.NewScanner(strings.NewReader(string(out)))
+			for scanner.Scan() {
+				var p pkg
+				fmt.Println(scanner.Text())
+				line := scanner.Text()
+				if strings.Contains(line, "expiration check") || len(strings.Fields(line)) < 3 {
+					continue
+				}
+				if len(strings.TrimSpace(line)) == 0 {
+					continue
+				}
+				p.Name = strings.Fields(line)[0]
+				p.Version = strings.Fields(line)[1]
+				p.Source = strings.Fields(line)[2]
+				packagesack = append(packagesack, p)
 			}
 		}
 	}
-	//	return strings.TrimSuffix(string(out), "\n")
 	return packagesack
 }
 
