@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"os"
@@ -14,16 +16,32 @@ import (
 	"syscall"
 )
 
+type pkg struct {
+	Name    string
+	Version string
+	Source  string
+}
+
 type Updater struct {
 	Hostname         string
 	Ip               string
-	UpdatesAvailable string
+	UpdatesAvailable bool
 	Uptime           string
-	ConsulOnline     bool
-	OS               string
-	OSfamily         string
-	OSVersion        string
-	Architecture     string
+	//ConsulOnline     bool
+	OS           string
+	OSfamily     string
+	OSversion    string
+	Architecture string
+	Packages     []pkg
+}
+
+func getOSinfo() {
+	if _, err := os.Stat("/etc/os-release"); err == nil {
+		err := godotenv.Load("/etc/os-release")
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
+	}
 }
 
 func myip() string {
@@ -52,16 +70,43 @@ func uptime() string {
 		log.Fatal(err)
 	}
 	return strings.TrimSuffix(string(out), "\n")
+}
+
+func hasupdates(packagesack []pkg) bool {
+	var b bool
+	if len(packagesack) > 0 {
+		b = true
+	} else {
+		b = false
+	}
+	return b
+}
+
+func getArch() string {
+	out, err := exec.Command("uname", "-m").CombinedOutput()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return strings.TrimSuffix(string(out), "\n")
 
 }
 
-func outdated() string {
+func outdated() []pkg {
+	var packagesack []pkg
 	var out []byte
 	var err error
 	if runtime.GOOS == "darwin" {
 		out, err = exec.Command("brew", "outdated").CombinedOutput()
 		if err != nil {
 			log.Fatal(err)
+		}
+		scanner := bufio.NewScanner(strings.NewReader(string(out)))
+		for scanner.Scan() {
+			var p pkg
+			fmt.Println(scanner.Text())
+			p.Name = scanner.Text()
+			p.Source = "brew"
+			packagesack = append(packagesack, p)
 		}
 	}
 	if runtime.GOOS == "linux" {
@@ -70,6 +115,23 @@ func outdated() string {
 			out, err = exec.Command("/usr/bin/apt", "list", "--upgradable").CombinedOutput()
 			if err != nil {
 				log.Fatal(err)
+			}
+			scanner := bufio.NewScanner(strings.NewReader(string(out)))
+			for scanner.Scan() {
+				var p pkg
+				fmt.Println(scanner.Text())
+				line := scanner.Text()
+				if strings.Contains(line, "WARNING") || strings.Contains(line, "Listing...") {
+					continue
+				}
+				if len(strings.TrimSpace(line)) == 0 {
+					continue
+				}
+
+				p.Name = strings.Fields(line)[0]
+				p.Version = strings.Fields(line)[1]
+				p.Source = "apt"
+				packagesack = append(packagesack, p)
 			}
 		}
 		if _, err := os.Stat("/usr/bin/yum"); err == nil {
@@ -84,7 +146,8 @@ func outdated() string {
 			}
 		}
 	}
-	return strings.TrimSuffix(string(out), "\n")
+	//	return strings.TrimSuffix(string(out), "\n")
+	return packagesack
 }
 
 func clientname() string {
@@ -102,11 +165,18 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//	text := outdated()
 	//	text += "hostname: " + clientname() + "\n"
 	//	text += "ipaddress:" + myip() + "\n"
+	getOSinfo()
+	packagesack := outdated()
 	response := Updater{
 		Hostname:         clientname(),
+		Architecture:     getArch(),
+		OS:               os.Getenv("PRETTY_NAME"),
+		OSfamily:         os.Getenv("ID"),
+		OSversion:        os.Getenv("VERSION_ID"),
 		Ip:               myip(),
-		UpdatesAvailable: outdated(),
+		UpdatesAvailable: hasupdates(packagesack),
 		Uptime:           uptime(),
+		Packages:         packagesack,
 	}
 	jresp, err := json.Marshal(response)
 	if err != nil {
