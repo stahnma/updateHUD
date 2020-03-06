@@ -1,7 +1,5 @@
 package main
 
-//TODO might want to add number of updates available
-
 import (
 	"bufio"
 	"encoding/json"
@@ -29,12 +27,11 @@ type Updater struct {
 	Ip               string
 	UpdatesAvailable bool
 	Uptime           string
-	//ConsulOnline     bool
-	OS             string
-	OSfamily       string
-	OSversion      string
-	Architecture   string
-	PendingUpdates []pkg
+	OS               string
+	OSfamily         string
+	OSversion        string
+	Architecture     string
+	PendingUpdates   []pkg
 }
 
 func getOSinfo() {
@@ -44,13 +41,9 @@ func getOSinfo() {
 			log.Fatalf("Error loading .env file")
 		}
 	}
-	//   System Version: macOS 10.14.6 (18G87)
-	//   system_profiler SPSoftwareDataType  | grep "System Version"
 	if runtime.GOOS == "darwin" {
 		os.Setenv("ID", "Darwin")
 		os.Setenv("", "macOS")
-		// os.Getenv("PRETTY_NAME"),
-		// OSversion:        os.Getenv("VERSION_ID"),
 		var out []byte
 		var err error
 		out, err = exec.Command("/usr/sbin/system_profiler", "SPSoftwareDataType").CombinedOutput()
@@ -65,11 +58,8 @@ func getOSinfo() {
 			}
 			os.Setenv("PRETTY_NAME", line)
 			os.Setenv("VERSION_ID", strings.Fields(line)[3])
-			//			fmt.Println(scanner.Text())
 		}
-		//		fmt.Println(string(out))
 	}
-
 }
 
 func myip() string {
@@ -79,7 +69,6 @@ func myip() string {
 		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
 		os.Exit(1)
 	}
-
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
@@ -116,7 +105,6 @@ func getArch() string {
 		log.Fatal(err)
 	}
 	return strings.TrimSuffix(string(out), "\n")
-
 }
 
 func outdated() []pkg {
@@ -155,7 +143,6 @@ func outdated() []pkg {
 				if len(strings.TrimSpace(line)) == 0 {
 					continue
 				}
-
 				p.Name = strings.Fields(line)[0]
 				p.Version = strings.Fields(line)[1]
 				p.Source = "apt"
@@ -200,11 +187,6 @@ func clientname() string {
 
 var knt int
 var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
-	fmt.Printf("MSG: %s\n", msg.Payload())
-	//text := fmt.Sprintf("this is result msg #%d!", knt)
-	//	text := outdated()
-	//	text += "hostname: " + clientname() + "\n"
-	//	text += "ipaddress:" + myip() + "\n"
 	getOSinfo()
 	packagesack := outdated()
 	response := Updater{
@@ -236,12 +218,12 @@ func main() {
 	opts.SetClientID(clientname())
 	opts.SetDefaultPublishHandler(f)
 	topic := "$SYS/broker/load/messages/received/1min"
-
 	opts.OnConnect = func(c MQTT.Client) {
 		if token := c.Subscribe(topic, 0, f); token.Wait() && token.Error() != nil {
 			panic(token.Error())
 		}
 	}
+
 	client := MQTT.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
