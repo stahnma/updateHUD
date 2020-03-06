@@ -119,7 +119,7 @@ func outdated() []pkg {
 		scanner := bufio.NewScanner(strings.NewReader(string(out)))
 		for scanner.Scan() {
 			var p pkg
-			fmt.Println(scanner.Text())
+			//fmt.Println(scanner.Text())
 			p.Name = scanner.Text()
 			p.Source = "brew"
 			packagesack = append(packagesack, p)
@@ -127,7 +127,7 @@ func outdated() []pkg {
 	}
 	if runtime.GOOS == "linux" {
 		if _, err := os.Stat("/usr/bin/apt"); err == nil {
-			fmt.Println("This is probably debian based")
+			//fmt.Println("This is probably debian based")
 			out, err = exec.Command("/usr/bin/apt", "list", "--upgradable").CombinedOutput()
 			if err != nil {
 				log.Fatal(err)
@@ -135,7 +135,7 @@ func outdated() []pkg {
 			scanner := bufio.NewScanner(strings.NewReader(string(out)))
 			for scanner.Scan() {
 				var p pkg
-				fmt.Println(scanner.Text())
+				//fmt.Println(scanner.Text())
 				line := scanner.Text()
 				if strings.Contains(line, "WARNING") || strings.Contains(line, "Listing...") {
 					continue
@@ -150,7 +150,7 @@ func outdated() []pkg {
 			}
 		}
 		if _, err := os.Stat("/usr/bin/yum"); err == nil {
-			fmt.Println("Probably Fedora/RHEL")
+			//fmt.Println("Probably Fedora/RHEL")
 			// Will exit 100 if there are updates, 0 if there are none
 			out, err = exec.Command("/usr/bin/dnf", "check-update").CombinedOutput()
 			if err != nil {
@@ -159,7 +159,7 @@ func outdated() []pkg {
 			scanner := bufio.NewScanner(strings.NewReader(string(out)))
 			for scanner.Scan() {
 				var p pkg
-				fmt.Println(scanner.Text())
+				//fmt.Println(scanner.Text())
 				line := scanner.Text()
 				if strings.Contains(line, "expiration check") || len(strings.Fields(line)) < 3 {
 					continue
@@ -222,6 +222,7 @@ func main() {
 		if token := c.Subscribe(topic, 0, f); token.Wait() && token.Error() != nil {
 			panic(token.Error())
 		}
+
 	}
 
 	client := MQTT.NewClient(opts)
