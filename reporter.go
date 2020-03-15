@@ -205,8 +205,11 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		fmt.Println("error:", err)
 	}
 	knt++
+	//token := client.Publish("homeagent/"+clientname()+"/updates", 0, false, jresp)
 	token := client.Publish("homeagent/updates", 0, false, jresp)
 	token.Wait()
+	//token = client.Publish("homeagent/"+clientname(), 0, false, clientname())
+	//token.Wait()
 }
 
 func main() {
