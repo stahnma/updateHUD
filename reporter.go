@@ -10,11 +10,31 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"os/signal"
+	//	"os/signal"
 	"runtime"
 	"strings"
-	"syscall"
+	//	"syscall"
+	"time"
 )
+
+const delay = 10
+const server = "angel"
+const port = "1883"
+
+// https://www.home-assistant.io/docs/mqtt/discovery/
+type haconfig struct {
+	//Deviceclass   string `json:"device_class"` //hostname
+	Name              string `json:"name"`
+	Statetopic        string `json:"state_topic"`
+	Attributetemplate string `json:"json_attributes_template"`
+	Attributetopic    string `json:"json_attributes_topic"`
+	Uniqueid          string `json:"unique_id"`
+}
+
+type updatestate struct {
+	State bool `json:"state"`
+    Hostname string `json:"name"`
+}
 
 type pkg struct {
 	Name    string
@@ -24,14 +44,15 @@ type pkg struct {
 
 type Updater struct {
 	Hostname         string
+	Architecture     string
 	Ip               string
 	UpdatesAvailable bool
 	Uptime           string
 	OS               string
 	OSfamily         string
 	OSversion        string
-	Architecture     string
 	PendingUpdates   []pkg
+	State            bool `json:"state"`
 }
 
 func getOSinfo() {
@@ -47,6 +68,7 @@ func getOSinfo() {
 		var out []byte
 		var err error
 		out, err = exec.Command("/usr/sbin/system_profiler", "SPSoftwareDataType").CombinedOutput()
+		//TODO trim leading whitespace on result
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -182,13 +204,13 @@ func clientname() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return cn
+	return strings.Split(cn, ".")[0]
 }
 
-var knt int
-var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
+func send_the_messages(client MQTT.Client) {
 	getOSinfo()
 	packagesack := outdated()
+	fmt.Println(packagesack)
 	response := Updater{
 		Hostname:         clientname(),
 		Architecture:     getArch(),
@@ -200,39 +222,70 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		Uptime:           uptime(),
 		PendingUpdates:   packagesack,
 	}
+	response.State = response.UpdatesAvailable
+
+	upstate := updatestate{
+		State: response.UpdatesAvailable,
+        Hostname: response.Hostname,
+	}
+
+	basetopic := "homeassistant/sensor/" + clientname()
+	statetopic := basetopic + "/state"
+	configtopic := basetopic + "/config"
+	attributestopic := basetopic + "/attrs"
+
+	hac := haconfig{
+		Name:              "Updates",
+		Statetopic:        statetopic,
+		Attributetemplate: "{{ state }}",
+		Attributetopic:    attributestopic,
+		Uniqueid:          response.Hostname,
+	}
+
+	ustate, err := json.Marshal(upstate)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Println(ustate)
+
 	jresp, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	knt++
-	//token := client.Publish("homeagent/"+clientname()+"/updates", 0, false, jresp)
-	token := client.Publish("homeagent/updates", 0, false, jresp)
+
+	hacjson, err := json.Marshal(hac)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	fmt.Println("===Publish config at " + configtopic)
+	fmt.Println(string(hacjson))
+	token := client.Publish(configtopic, 0, false, hacjson)
 	token.Wait()
-	//token = client.Publish("homeagent/"+clientname(), 0, false, clientname())
-	//token.Wait()
+
+	fmt.Println("===Publish state at " + statetopic)
+	fmt.Println(string(ustate))
+	token = client.Publish(statetopic, 0, false, ustate)
+	token.Wait()
+
+	fmt.Println("===Publish attributes at " + attributestopic)
+	token = client.Publish(attributestopic, 0, false, jresp)
+	fmt.Println(string(jresp))
+	token.Wait()
 }
 
 func main() {
-	knt = 0
-	fmt.Println(outdated())
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	opts := MQTT.NewClientOptions().AddBroker("tcp://angel:1883")
+	broker_string := "tcp://" + server + ":" + port
+	opts := MQTT.NewClientOptions().AddBroker(broker_string)
 	opts.SetClientID(clientname())
-	opts.SetDefaultPublishHandler(f)
-	topic := "$SYS/broker/load/messages/received/1min"
-	opts.OnConnect = func(c MQTT.Client) {
-		if token := c.Subscribe(topic, 0, f); token.Wait() && token.Error() != nil {
-			panic(token.Error())
-		}
-
-	}
-
 	client := MQTT.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	} else {
-		fmt.Printf("Connected to server\n")
+		fmt.Printf("Connected to " + server + "\n")
+		for {
+			send_the_messages(client)
+			time.Sleep(delay * 1000 * time.Millisecond)
+		}
 	}
-	<-c
 }
