@@ -18,7 +18,7 @@ import (
 )
 
 const delay = 10
-const server = "angel"
+const server = "spike"
 const port = "1883"
 
 // https://www.home-assistant.io/docs/mqtt/discovery/
@@ -32,8 +32,8 @@ type haconfig struct {
 }
 
 type updatestate struct {
-	State bool `json:"state"`
-    Hostname string `json:"name"`
+	State    bool   `json:"state"`
+	Hostname string `json:"name"`
 }
 
 type pkg struct {
@@ -225,8 +225,8 @@ func send_the_messages(client MQTT.Client) {
 	response.State = response.UpdatesAvailable
 
 	upstate := updatestate{
-		State: response.UpdatesAvailable,
-        Hostname: response.Hostname,
+		State:    response.UpdatesAvailable,
+		Hostname: response.Hostname,
 	}
 
 	basetopic := "homeassistant/sensor/" + clientname()
@@ -248,7 +248,7 @@ func send_the_messages(client MQTT.Client) {
 	}
 	fmt.Println(ustate)
 
-	jresp, err := json.Marshal(response)
+	jresp, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
