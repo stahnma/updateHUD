@@ -1,0 +1,407 @@
+{
+  "lockfile-version": 1,
+  "manifest": {
+    "version": 1,
+    "install": {
+      "gnumake": {
+        "pkg-path": "gnumake"
+      },
+      "go": {
+        "pkg-path": "go"
+      },
+      "nats-server": {
+        "pkg-path": "nats-server"
+      }
+    },
+    "hook": {},
+    "profile": {},
+    "options": {
+      "systems": [
+        "aarch64-darwin",
+        "aarch64-linux",
+        "x86_64-darwin",
+        "x86_64-linux"
+      ],
+      "allow": {
+        "licenses": []
+      },
+      "semver": {}
+    }
+  },
+  "packages": [
+    {
+      "attr_path": "gnumake",
+      "broken": false,
+      "derivation": "/nix/store/pkf69i7w8b706ks0f2d2n508yn2019f6-gnumake-4.4.1.drv",
+      "description": "Tool to control the generation of non-source files from sources",
+      "install_id": "gnumake",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "gnumake-4.4.1",
+      "pname": "gnumake",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "4.4.1",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "info": "/nix/store/1q1mx4697p2366yf45mhrsxm415gmvh8-gnumake-4.4.1-info",
+        "man": "/nix/store/xf2ipc0w3wr5ymqai8dm940sw3a7xk69-gnumake-4.4.1-man",
+        "out": "/nix/store/j2mshll8lvgc21dbmjyfcvlj98z4pl2f-gnumake-4.4.1"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnumake",
+      "broken": false,
+      "derivation": "/nix/store/4cnxsr9p37kaic115pd25qf46qjd5xys-gnumake-4.4.1.drv",
+      "description": "Tool to control the generation of non-source files from sources",
+      "install_id": "gnumake",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "gnumake-4.4.1",
+      "pname": "gnumake",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "4.4.1",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "debug": "/nix/store/djip0r8g0bhyspna7zs1wdx6kl29h8dz-gnumake-4.4.1-debug",
+        "info": "/nix/store/l3k5d0h7b6rffm97rmvrxqsk1ybpk1vc-gnumake-4.4.1-info",
+        "man": "/nix/store/kkpyxq7m54gqpf7z1kjm0fkgp2i748mh-gnumake-4.4.1-man",
+        "out": "/nix/store/zwyip85vjf7972r2q71vrx9fppv7j816-gnumake-4.4.1"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnumake",
+      "broken": false,
+      "derivation": "/nix/store/l0jwwn7ywvrx3n3bpp3kvzm6v96hm5gp-gnumake-4.4.1.drv",
+      "description": "Tool to control the generation of non-source files from sources",
+      "install_id": "gnumake",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "gnumake-4.4.1",
+      "pname": "gnumake",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "4.4.1",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "info": "/nix/store/rxrkjmfi95mzymfclx1szm61p3pygd6k-gnumake-4.4.1-info",
+        "man": "/nix/store/2n5zqv14340b1d71gcvxg22kk6wgm09m-gnumake-4.4.1-man",
+        "out": "/nix/store/rhra8sm6f4mlxg2p9qwr7cig1zlfwhgq-gnumake-4.4.1"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "gnumake",
+      "broken": false,
+      "derivation": "/nix/store/i6s1270y2qqzbxcqi2pqxk4rlp3d7ld0-gnumake-4.4.1.drv",
+      "description": "Tool to control the generation of non-source files from sources",
+      "install_id": "gnumake",
+      "license": "GPL-3.0-or-later",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "gnumake-4.4.1",
+      "pname": "gnumake",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "4.4.1",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "debug": "/nix/store/9q813q8jf9gni01rv1s482mpqh78l806-gnumake-4.4.1-debug",
+        "info": "/nix/store/cpnb2dpvx8ilq1y2h9cpm4zrsyi1gd4a-gnumake-4.4.1-info",
+        "man": "/nix/store/a5kmw72gkf1isyq6xakvmrkfsvqs0gcg-gnumake-4.4.1-man",
+        "out": "/nix/store/zmdi3226094qc355n9ffhp5an9shpp2d-gnumake-4.4.1"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/h0fnip35k4lsrzpmqcpys5n79mybdyiz-go-1.23.3.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "go-1.23.3",
+      "pname": "go",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.3",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/w5cxqj1wmbl3wp6arpyl90g66hjs0823-go-1.23.3"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/7z5w6l4z1am909fazspdizhd8hjcrldd-go-1.23.3.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "go-1.23.3",
+      "pname": "go",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.3",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/09zl6c5i31x18w55qskc0kbp32arvvlr-go-1.23.3"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/mkxbfn6iqinqs3fsczr4wn1306cjl5g6-go-1.23.3.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "go-1.23.3",
+      "pname": "go",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.3",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/alkrwr7w62qp3160q0azcvnyn0184hw3-go-1.23.3"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/k427v9wgcg9ify27mcqxrkpw5fd16xmg-go-1.23.3.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "go-1.23.3",
+      "pname": "go",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.3",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/zhq8dnjbhwspzdglyq28j74axvqyk86q-go-1.23.3"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "nats-server",
+      "broken": false,
+      "derivation": "/nix/store/3lfs64vy7cfbghikc4601ikglbiwvdr1-nats-server-2.10.23.drv",
+      "description": "High-Performance server for NATS",
+      "install_id": "nats-server",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "nats-server-2.10.23",
+      "pname": "nats-server",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.10.23",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/5346nl25sxc2lmq3b5mxn546bn98l0w6-nats-server-2.10.23"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "nats-server",
+      "broken": false,
+      "derivation": "/nix/store/33kgwqldigg0mq6jms41p19j4znkpalz-nats-server-2.10.23.drv",
+      "description": "High-Performance server for NATS",
+      "install_id": "nats-server",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "nats-server-2.10.23",
+      "pname": "nats-server",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.10.23",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/inbca5njh95vwx8fql7km88s66hzssbx-nats-server-2.10.23"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "nats-server",
+      "broken": false,
+      "derivation": "/nix/store/0yl4szczl1z817v59lfj7wcwl0lpaz09-nats-server-2.10.23.drv",
+      "description": "High-Performance server for NATS",
+      "install_id": "nats-server",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "nats-server-2.10.23",
+      "pname": "nats-server",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.10.23",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/y0j7jh9bmmb49j9g82l29yfzp0x4bap3-nats-server-2.10.23"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "nats-server",
+      "broken": false,
+      "derivation": "/nix/store/xlrankn5f6hjp0p9rp4ljy6r0cj9hn1h-nats-server-2.10.23.drv",
+      "description": "High-Performance server for NATS",
+      "install_id": "nats-server",
+      "license": "Apache-2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "nats-server-2.10.23",
+      "pname": "nats-server",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "2.10.23",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/6a9hdf3k0mwx7l57pv8h6ihq3ks76shq-nats-server-2.10.23"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    }
+  ]
+}
