@@ -3,6 +3,9 @@
   "manifest": {
     "version": 1,
     "install": {
+      "ack": {
+        "pkg-path": "ack"
+      },
       "gnumake": {
         "pkg-path": "gnumake"
       },
@@ -29,6 +32,134 @@
     }
   },
   "packages": [
+    {
+      "attr_path": "ack",
+      "broken": false,
+      "derivation": "/nix/store/qxlnkjyj6mr8sxysds4xbbm6fpqms0qy-perl5.40.0-ack-3.7.0.drv",
+      "description": "Grep-like tool tailored to working with large trees of source code",
+      "install_id": "ack",
+      "license": "[ Artistic-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "perl5.40.0-ack-3.7.0",
+      "pname": "ack",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "perl5.40.0-ack-3.7.0",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "man": "/nix/store/8p1h7fd8g9264wj2p59hk5ys0zdjxipv-perl5.40.0-ack-3.7.0-man",
+        "out": "/nix/store/kpj0wlc6qc5wgdnm2xc2123middd2a9z-perl5.40.0-ack-3.7.0"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ack",
+      "broken": false,
+      "derivation": "/nix/store/bl0r26qdjlgrjdjcw32pcqj7rgclmfdd-perl5.40.0-ack-3.7.0.drv",
+      "description": "Grep-like tool tailored to working with large trees of source code",
+      "install_id": "ack",
+      "license": "[ Artistic-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "perl5.40.0-ack-3.7.0",
+      "pname": "ack",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "perl5.40.0-ack-3.7.0",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "man": "/nix/store/m2xfg7g7qkdgbpvm422rpjw6yi14ix8p-perl5.40.0-ack-3.7.0-man",
+        "out": "/nix/store/czcg936fgzb8r2s3glpyi9jn9sq8nr3z-perl5.40.0-ack-3.7.0"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ack",
+      "broken": false,
+      "derivation": "/nix/store/5sg2prxz9q1fj7fxxw3ds2rvyykhxiks-perl5.40.0-ack-3.7.0.drv",
+      "description": "Grep-like tool tailored to working with large trees of source code",
+      "install_id": "ack",
+      "license": "[ Artistic-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "perl5.40.0-ack-3.7.0",
+      "pname": "ack",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "perl5.40.0-ack-3.7.0",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "man": "/nix/store/hxwd1bvm09v3s1h9p16mgv2f3dnf1563-perl5.40.0-ack-3.7.0-man",
+        "out": "/nix/store/9annqzf6qphs1h93hzi9bs2lfaibsgxg-perl5.40.0-ack-3.7.0"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "ack",
+      "broken": false,
+      "derivation": "/nix/store/1dbghj4w2mh4z5fsck7cqbarr8917srg-perl5.40.0-ack-3.7.0.drv",
+      "description": "Grep-like tool tailored to working with large trees of source code",
+      "install_id": "ack",
+      "license": "[ Artistic-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "perl5.40.0-ack-3.7.0",
+      "pname": "ack",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "perl5.40.0-ack-3.7.0",
+      "outputs_to_install": [
+        "out",
+        "man"
+      ],
+      "outputs": {
+        "man": "/nix/store/mfc8vh888fbbvg0lymrhk3fgyh162h8r-perl5.40.0-ack-3.7.0-man",
+        "out": "/nix/store/gnrlvhjccc32p19knkmn33v9ykqsm1rn-perl5.40.0-ack-3.7.0"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
     {
       "attr_path": "gnumake",
       "broken": false,
