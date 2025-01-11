@@ -1,0 +1,124 @@
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"os"
+	"os/exec"
+	"runtime"
+	"strings"
+	"time"
+
+	nats "github.com/nats-io/nats.go"
+)
+
+type Update struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Source  string `json:"source"`
+}
+
+type System struct {
+	Hostname         string   `json:"hostname"`
+	Architecture     string   `json:"architecture"`
+	Ip               string   `json:"ip"`
+	OS               string   `json:"os"`
+	OSVersion        string   `json:"os_version"`
+	UpdatesAvailable bool     `json:"updates_available"`
+	PendingUpdates   []Update `json:"pending_updates"`
+	Timestamp        string   `json:"timestamp"`
+}
+
+func collectSystemData() (System, error) {
+	var system System
+
+	// Get hostname
+	hostname, err := os.Hostname()
+	if err != nil {
+		return system, err
+	}
+	system.Hostname = hostname
+
+	// Get architecture
+	arch, err := exec.Command("uname", "-m").Output()
+	if err != nil {
+		return system, err
+	}
+	system.Architecture = strings.TrimSpace(string(arch))
+
+	// Get OS and version
+	system.OS = runtime.GOOS
+	if runtime.GOOS == "linux" {
+		if _, err := os.Stat("/etc/os-release"); err == nil {
+			content, _ := os.ReadFile("/etc/os-release")
+			lines := strings.Split(string(content), "\n")
+			for _, line := range lines {
+				if strings.HasPrefix(line, "PRETTY_NAME=") {
+					system.OS = strings.Trim(strings.TrimPrefix(line, "PRETTY_NAME="), `"`)
+				}
+			}
+		}
+	}
+
+	// Get updates
+	system.PendingUpdates = getPendingUpdates()
+	system.UpdatesAvailable = len(system.PendingUpdates) > 0
+
+	// Timestamp
+	system.Timestamp = time.Now().Format(time.RFC3339)
+
+	return system, nil
+}
+
+func getPendingUpdates() []Update {
+	var updates []Update
+	if runtime.GOOS == "linux" {
+		out, err := exec.Command("apt", "list", "--upgradable").Output()
+		if err != nil {
+			log.Printf("Error checking updates: %v", err)
+			return updates
+		}
+		lines := strings.Split(string(out), "\n")
+		for _, line := range lines {
+			fields := strings.Fields(line)
+			if len(fields) >= 2 {
+				updates = append(updates, Update{
+					Name:    fields[0],
+					Version: fields[1],
+					Source:  "apt",
+				})
+			}
+		}
+	}
+	return updates
+}
+
+func main() {
+	// Connect to NATS
+	nc, err := nats.Connect(nats.DefaultURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to NATS: %v", err)
+	}
+	defer nc.Close()
+
+	// Collect system data
+	system, err := collectSystemData()
+	if err != nil {
+		log.Fatalf("Failed to collect system data: %v", err)
+	}
+
+	// Publish system data to NATS
+	data, err := json.Marshal(system)
+	if err != nil {
+		log.Fatalf("Failed to marshal system data: %v", err)
+	}
+
+	subject := "systems.updates." + system.Hostname
+	if err := nc.Publish(subject, data); err != nil {
+		log.Fatalf("Failed to publish system data: %v", err)
+	}
+
+	log.Printf("System data published to subject %s", subject)
+}
+
+
