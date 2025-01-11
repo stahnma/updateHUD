@@ -66,4 +66,3 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 func (s *BboltStorage) Close() error {
 	return s.db.Close()
 }
-

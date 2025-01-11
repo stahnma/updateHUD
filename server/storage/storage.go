@@ -8,4 +8,3 @@ type Storage interface {
 	GetAllSystems() ([]models.System, error)
 	Close() error
 }
-

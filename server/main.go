@@ -24,4 +24,3 @@ func main() {
 	// Start HTTP API
 	api.StartServer(store, config.HTTPPort)
 }
-

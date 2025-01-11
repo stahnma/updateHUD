@@ -3,8 +3,8 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"server/storage"
+	"strings"
 )
 
 func GetAllSystemsHandler(store storage.Storage, w http.ResponseWriter, r *http.Request) {
@@ -25,4 +25,3 @@ func GetSystemHandler(store storage.Storage, w http.ResponseWriter, r *http.Requ
 	}
 	json.NewEncoder(w).Encode(system)
 }
-

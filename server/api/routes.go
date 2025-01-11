@@ -1,9 +1,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"server/storage"
-	"log"
 )
 
 func StartServer(store storage.Storage, port string) {
@@ -19,4 +19,3 @@ func StartServer(store storage.Storage, port string) {
 	log.Printf("Starting server on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-

@@ -16,4 +16,3 @@ type Update struct {
 	Version string `json:"version"`
 	Source  string `json:"source"`
 }
-
