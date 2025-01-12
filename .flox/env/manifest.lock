@@ -14,6 +14,9 @@
       },
       "nats-server": {
         "pkg-path": "nats-server"
+      },
+      "natscli": {
+        "pkg-path": "natscli"
       }
     },
     "hook": {},
@@ -529,6 +532,126 @@
       ],
       "outputs": {
         "out": "/nix/store/6a9hdf3k0mwx7l57pv8h6ihq3ks76shq-nats-server-2.10.23"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "natscli",
+      "broken": false,
+      "derivation": "/nix/store/3i4152r5nv28agq7bmp3xzabzkhjzq4l-natscli-0.1.5.drv",
+      "description": "NATS Command Line Interface",
+      "install_id": "natscli",
+      "license": "[ Apache-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "natscli-0.1.5",
+      "pname": "natscli",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.1.5",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/f83z15759b92497f04abib94wvhsiqcw-natscli-0.1.5"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "natscli",
+      "broken": false,
+      "derivation": "/nix/store/3qqi92sp4374ph1ly138h4cs3hwsq1xf-natscli-0.1.5.drv",
+      "description": "NATS Command Line Interface",
+      "install_id": "natscli",
+      "license": "[ Apache-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "natscli-0.1.5",
+      "pname": "natscli",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.1.5",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/1np08fd2qvmxpalcw2nsnsqc6g26k9xd-natscli-0.1.5"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "natscli",
+      "broken": false,
+      "derivation": "/nix/store/6kjdqdnfizy6j8vzllbhj19cbyrjgi8w-natscli-0.1.5.drv",
+      "description": "NATS Command Line Interface",
+      "install_id": "natscli",
+      "license": "[ Apache-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "natscli-0.1.5",
+      "pname": "natscli",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.1.5",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/0pghz84k152a97bim1hdd6m8i3az5yc9-natscli-0.1.5"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "natscli",
+      "broken": false,
+      "derivation": "/nix/store/jzn1awdch552pbwnv4iy1205qrwzdpnb-natscli-0.1.5.drv",
+      "description": "NATS Command Line Interface",
+      "install_id": "natscli",
+      "license": "[ Apache-2.0 ]",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "name": "natscli-0.1.5",
+      "pname": "natscli",
+      "rev": "d3c42f187194c26d9f0309a8ecc469d6c878ce33",
+      "rev_count": 723344,
+      "rev_date": "2024-12-17T08:37:14Z",
+      "scrape_date": "2024-12-19T03:52:25Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.1.5",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/asy2p69f0g0yfg1iqblmx27g3ym6n7wq-natscli-0.1.5"
       },
       "system": "x86_64-linux",
       "group": "toplevel",

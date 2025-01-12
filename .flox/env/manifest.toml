@@ -19,6 +19,7 @@ go.pkg-path = "go"
 gnumake.pkg-path = "gnumake"
 nats-server.pkg-path = "nats-server"
 ack.pkg-path = "ack"
+natscli.pkg-path = "natscli"
 # gum.pkg-path = "gum"
 # gum.version = "^0.14.5"
 
