@@ -4,6 +4,7 @@ import (
 	"log"
 	"server/nats"
 	"server/storage"
+	"server/web"
 )
 
 func main() {
@@ -13,13 +14,17 @@ func main() {
 	// Initialize storage
 	store, err := storage.NewBboltStorage(config.DBPath)
 	if err != nil {
-		log.Fatalf("Failed to initialize storage: %v", err)
+		log.Fatalf("[ERROR] Failed to initialize storage: %v", err)
 	}
 	defer store.Close()
 
-	// Start NATS subscriber
-	go nats.StartSubscriber(store, config.NATSURL)
+	// Start NATS subscriber in a separate goroutine
+	go func() {
+		log.Println("[INFO] Starting NATS subscriber...")
+		nats.StartSubscriber(store, config.NATSURL)
+	}()
 
-	// Keep the server running indefinitely
-	select {}
+	// Start the web server
+	log.Println("[INFO] Starting web server...")
+	web.StartWebServer(store, config.HTTPPort)
 }

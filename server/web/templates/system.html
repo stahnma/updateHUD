@@ -1,0 +1,10 @@
+<div class="modal-content">
+    <h2>Updates for {{.Hostname}}</h2>
+    <ul>
+        {{range .PendingUpdates}}
+        <li>{{.Name}} ({{.Source}}) - Version: {{.Version}}</li>
+        {{end}}
+    </ul>
+    <button onclick="closeModal()">Close</button>
+</div>
+

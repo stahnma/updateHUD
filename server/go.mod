@@ -3,6 +3,8 @@ module server
 go 1.23.3
 
 require (
+	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/nats-io/nats.go v1.38.0
 	go.etcd.io/bbolt v1.3.11
 )

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -92,40 +93,68 @@ func collectSystemData() (System, error) {
 func getPendingUpdates() []Update {
 	var updates []Update
 
-	// Check for updates on Linux with apt
 	if runtime.GOOS == "linux" {
-		out, err := exec.Command("apt", "list", "--upgradable").Output()
-		if err != nil {
-			log.Printf("[ERROR] Failed to check apt updates: %v", err)
-			return updates
-		}
-		lines := strings.Split(string(out), "\n")
-		for _, line := range lines {
-			fields := strings.Fields(line)
-			if len(fields) >= 2 {
-				updates = append(updates, Update{
-					Name:    fields[0],
-					Version: fields[1],
-					Source:  "apt",
-				})
+		// Check for APT (Debian-based systems)
+		if _, err := os.Stat("/usr/bin/apt"); err == nil {
+			out, err := exec.Command("/usr/bin/apt", "list", "--upgradable").Output()
+			if err != nil {
+				log.Printf("Error checking updates with apt: %v", err)
+				return updates
+			}
+			lines := strings.Split(string(out), "\n")
+			for _, line := range lines {
+				fields := strings.Fields(line)
+				if len(fields) >= 2 && !strings.HasPrefix(line, "Listing") {
+					updates = append(updates, Update{
+						Name:    fields[0],
+						Version: fields[1],
+						Source:  "apt",
+					})
+				}
 			}
 		}
-	}
 
-	// Check for updates on macOS with Homebrew
-	if runtime.GOOS == "darwin" {
-		out, err := exec.Command("brew", "outdated").Output()
-		if err != nil {
-			log.Printf("[ERROR] Failed to check Homebrew updates: %v", err)
-			return updates
+		// Check for DNF (Fedora/RHEL systems)
+		if _, err := os.Stat("/usr/bin/dnf"); err == nil {
+			out, err := exec.Command("/usr/bin/dnf", "check-update").Output()
+			if err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
+					log.Printf("Error checking updates with dnf: %v", err)
+				}
+			}
+			scanner := bufio.NewScanner(strings.NewReader(string(out)))
+			for scanner.Scan() {
+				line := scanner.Text()
+				fields := strings.Fields(line)
+				if len(fields) >= 3 && !strings.HasPrefix(line, "Last metadata") {
+					updates = append(updates, Update{
+						Name:    fields[0],
+						Version: fields[1],
+						Source:  "dnf",
+					})
+				}
+			}
 		}
-		lines := strings.Split(string(out), "\n")
-		for _, line := range lines {
-			if len(strings.TrimSpace(line)) > 0 {
-				updates = append(updates, Update{
-					Name:   line,
-					Source: "brew",
-				})
+
+		// Check for YUM (Older RHEL/CentOS systems)
+		if _, err := os.Stat("/usr/bin/yum"); err == nil {
+			out, err := exec.Command("/usr/bin/yum", "check-update").Output()
+			if err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
+					log.Printf("Error checking updates with yum: %v", err)
+				}
+			}
+			scanner := bufio.NewScanner(strings.NewReader(string(out)))
+			for scanner.Scan() {
+				line := scanner.Text()
+				fields := strings.Fields(line)
+				if len(fields) >= 3 && !strings.HasPrefix(line, "Loaded plugins") {
+					updates = append(updates, Update{
+						Name:    fields[0],
+						Version: fields[1],
+						Source:  "yum",
+					})
+				}
 			}
 		}
 	}
@@ -135,7 +164,7 @@ func getPendingUpdates() []Update {
 
 func main() {
 	// NATS server URL with authentication
-	natsURL := "nats://admin:password@localhost:4222"
+	natsURL := "nats://admin:password@192.168.1.206:4222"
 
 	log.Printf("[DEBUG] Attempting to connect to NATS at %s...", natsURL)
 	nc, err := nats.Connect(natsURL,

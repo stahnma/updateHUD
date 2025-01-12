@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Updates</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <h1>System Updates</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>OS</th>
+                <th>Architecture</th>
+                <th>IP Address</th>
+                <th>Updates Available</th>
+            </tr>
+        </thead>
+        <tbody id="systems">
+            <!-- Rows will be dynamically rendered -->
+        </tbody>
+    </table>
+    <div id="modal" class="modal"></div>
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+</body>
+</html>
+

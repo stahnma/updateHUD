@@ -1,0 +1,23 @@
+<table>
+    <thead>
+        <tr>
+            <th>Hostname</th>
+            <th>OS</th>
+            <th>Architecture</th>
+            <th>IP Address</th>
+            <th>Updates Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr data-hostname="{{.Hostname}}">
+            <td>{{.Hostname}}</td>
+            <td>{{.OS}} {{.OSVersion}}</td>
+            <td>{{.Architecture}}</td>
+            <td>{{.Ip}}</td>
+            <td>{{if .UpdatesAvailable}}Yes{{else}}No{{end}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
