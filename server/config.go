@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"log"
+	"os"
+)
 
 type Config struct {
 	NATSURL  string
@@ -9,11 +12,13 @@ type Config struct {
 }
 
 func LoadConfig() Config {
-	return Config{
-		NATSURL:  getEnv("NATS_URL", "nats://localhost:4222"),
+	config := Config{
+		NATSURL:  getEnv("NATS_URL", "nats://admin:password@localhost:4222"),
 		DBPath:   getEnv("DB_PATH", "systems.db"),
 		HTTPPort: getEnv("HTTP_PORT", "8080"),
 	}
+	log.Printf("Loaded configuration: %+v", config)
+	return config
 }
 
 func getEnv(key, fallback string) string {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"server/api"
 	"server/nats"
 	"server/storage"
 )
@@ -21,6 +20,6 @@ func main() {
 	// Start NATS subscriber
 	go nats.StartSubscriber(store, config.NATSURL)
 
-	// Start HTTP API
-	api.StartServer(store, config.HTTPPort)
+	// Keep the server running indefinitely
+	select {}
 }
