@@ -2,6 +2,12 @@
 
 NAME=mqttfun
 
+newbuild: fmt tidy
+	make -C client
+	make -C server
+
+
+
 build: fmt tidy
 	go build .
 
@@ -9,7 +15,7 @@ tidy:
 	go mod tidy
 
 fmt:
-	go fmt *.go
+	go fmt ./...
 
 run: fmt
 	go run *.go
