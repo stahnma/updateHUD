@@ -11,3 +11,5 @@ Flox setup
 Clean up git history.
 rename project
 configure actions
+source for debian repos shows up as "unknown", but the package name has the source in it.
+alphabetize list (or add sortable columns)
