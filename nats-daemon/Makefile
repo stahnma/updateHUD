@@ -1,4 +1,4 @@
 
 
 run:
-	nats-server --jetstream -c nats.conf
+	nats-server --jetstream -c nats.conf -DV
