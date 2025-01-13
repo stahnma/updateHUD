@@ -2,3 +2,11 @@ Reconnect if server comes back
 Debug output in too  many spots
 success when it's not successful connect
 IP can't be hard-coded.
+Not sure update checking is working on debian
+If there are no updates, it's an error in the expansion menu
+New systems are not auto showing up
+Remove Debug information (or make it optional)
+SystemDunits
+Flox setup
+Clean up git history.
+rename project
