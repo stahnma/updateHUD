@@ -4,11 +4,7 @@ go 1.22
 
 toolchain go1.23.3
 
-require (
-	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.3
-	github.com/nats-io/nats.go v1.38.0
-)
+require github.com/nats-io/nats.go v1.38.0
 
 require (
 	github.com/klauspost/compress v1.17.9 // indirect
