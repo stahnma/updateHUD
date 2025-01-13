@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,47 +11,43 @@ import (
 	"strings"
 	"time"
 
-	nats "github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go"
+	"github.com/stahnma/mqttfun/client/updates"
 )
 
-type Update struct {
-	Name    string `json:"name"`
-	Version string `json:"version,omitempty"`
-	Source  string `json:"source"`
-}
-
 type System struct {
-	Hostname         string   `json:"hostname"`
-	Architecture     string   `json:"architecture"`
-	Ip               string   `json:"ip"`
-	OS               string   `json:"os"`
-	OSVersion        string   `json:"os_version"`
-	UpdatesAvailable bool     `json:"updates_available"`
-	PendingUpdates   []Update `json:"pending_updates"`
-	Timestamp        string   `json:"timestamp"`
+	Hostname         string           `json:"hostname"`
+	Architecture     string           `json:"architecture"`
+	Ip               string           `json:"ip"`
+	OS               string           `json:"os"`
+	OSVersion        string           `json:"os_version"`
+	UpdatesAvailable bool             `json:"updates_available"`
+	PendingUpdates   []updates.Update `json:"pending_updates"`
+	Timestamp        string           `json:"timestamp"`
 }
 
+// Collects all system data to prepare for publishing
 func collectSystemData() (System, error) {
 	var system System
 
-	// Get hostname
+	// Hostname
 	hostname, err := os.Hostname()
 	if err != nil {
 		return system, err
 	}
 	system.Hostname = hostname
 
-	// Get architecture
+	// Architecture
 	arch, err := exec.Command("uname", "-m").Output()
 	if err != nil {
 		return system, err
 	}
 	system.Architecture = strings.TrimSpace(string(arch))
 
-	// Get OS and version
+	// OS and Version
 	system.OS = runtime.GOOS
 	if runtime.GOOS == "darwin" {
-		// Get macOS version using sw_vers
+		// macOS version
 		out, err := exec.Command("sw_vers", "-productVersion").Output()
 		if err != nil {
 			log.Printf("[ERROR] Failed to get macOS version: %v", err)
@@ -60,7 +55,7 @@ func collectSystemData() (System, error) {
 			system.OSVersion = strings.TrimSpace(string(out))
 		}
 	} else if runtime.GOOS == "linux" {
-		// Get Linux OS version
+		// Linux OS version
 		if _, err := os.Stat("/etc/os-release"); err == nil {
 			content, _ := os.ReadFile("/etc/os-release")
 			lines := strings.Split(string(content), "\n")
@@ -72,7 +67,7 @@ func collectSystemData() (System, error) {
 		}
 	}
 
-	// Get IP address
+	// IP Address
 	ip, err := getIPAddress()
 	if err != nil {
 		log.Printf("[ERROR] Failed to get IP address: %v", err)
@@ -80,8 +75,8 @@ func collectSystemData() (System, error) {
 		system.Ip = ip
 	}
 
-	// Get pending updates
-	system.PendingUpdates = getPendingUpdates()
+	// Pending Updates
+	system.PendingUpdates = updates.GetPendingUpdates()
 	system.UpdatesAvailable = len(system.PendingUpdates) > 0
 
 	// Timestamp
@@ -90,120 +85,7 @@ func collectSystemData() (System, error) {
 	return system, nil
 }
 
-func getPendingUpdates() []Update {
-	var updates []Update
-
-	if runtime.GOOS == "linux" {
-		// Check for APT (Debian-based systems)
-		if _, err := os.Stat("/usr/bin/apt"); err == nil {
-			out, err := exec.Command("/usr/bin/apt", "list", "--upgradable").Output()
-			if err != nil {
-				log.Printf("Error checking updates with apt: %v", err)
-				return updates
-			}
-			lines := strings.Split(string(out), "\n")
-			for _, line := range lines {
-				fields := strings.Fields(line)
-				if len(fields) >= 2 && !strings.HasPrefix(line, "Listing") {
-					updates = append(updates, Update{
-						Name:    fields[0],
-						Version: fields[1],
-						Source:  "apt",
-					})
-				}
-			}
-		}
-
-		// Check for DNF (Fedora/RHEL systems)
-		if _, err := os.Stat("/usr/bin/dnf"); err == nil {
-			out, err := exec.Command("/usr/bin/dnf", "check-update").Output()
-			if err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
-					log.Printf("Error checking updates with dnf: %v", err)
-				}
-			}
-			scanner := bufio.NewScanner(strings.NewReader(string(out)))
-			for scanner.Scan() {
-				line := scanner.Text()
-				fields := strings.Fields(line)
-				if len(fields) >= 3 && !strings.HasPrefix(line, "Last metadata") {
-					updates = append(updates, Update{
-						Name:    fields[0],
-						Version: fields[1],
-						Source:  "dnf",
-					})
-				}
-			}
-		}
-
-		// Check for YUM (Older RHEL/CentOS systems)
-		if _, err := os.Stat("/usr/bin/yum"); err == nil {
-			out, err := exec.Command("/usr/bin/yum", "check-update").Output()
-			if err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
-					log.Printf("Error checking updates with yum: %v", err)
-				}
-			}
-			scanner := bufio.NewScanner(strings.NewReader(string(out)))
-			for scanner.Scan() {
-				line := scanner.Text()
-				fields := strings.Fields(line)
-				if len(fields) >= 3 && !strings.HasPrefix(line, "Loaded plugins") {
-					updates = append(updates, Update{
-						Name:    fields[0],
-						Version: fields[1],
-						Source:  "yum",
-					})
-				}
-			}
-		}
-	}
-
-	return updates
-}
-
-func main() {
-	// NATS server URL with authentication
-	natsURL := "nats://admin:password@192.168.1.206:4222"
-
-	log.Printf("[DEBUG] Attempting to connect to NATS at %s...", natsURL)
-	nc, err := nats.Connect(natsURL,
-		nats.Name("System Updates Publisher"),
-		nats.Timeout(10*time.Second),
-		nats.RetryOnFailedConnect(true),
-		nats.MaxReconnects(5),
-		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
-			log.Printf("[ERROR] Disconnected from NATS: %v", err)
-		}),
-		nats.ReconnectHandler(func(nc *nats.Conn) {
-			log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
-		}),
-		nats.ClosedHandler(func(nc *nats.Conn) {
-			log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
-		}),
-	)
-	if err != nil {
-		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
-	}
-	defer nc.Close()
-	log.Println("[INFO] Successfully connected to NATS")
-
-	// Run the client as a long-running daemon
-	ticker := time.NewTicker(1 * time.Minute) // Set the interval to 5 minutes
-	defer ticker.Stop()
-
-	// Send an immediate update
-	sendSystemUpdate(nc)
-
-	// Periodically send updates
-	for {
-		select {
-		case <-ticker.C:
-			sendSystemUpdate(nc)
-		}
-	}
-}
-
+// Publishes system data to NATS
 func sendSystemUpdate(nc *nats.Conn) {
 	// Collect system data
 	system, err := collectSystemData()
@@ -219,6 +101,9 @@ func sendSystemUpdate(nc *nats.Conn) {
 		return
 	}
 
+	// Log message size
+	log.Printf("[DEBUG] Message size: %d bytes", len(data))
+
 	// Publish the message
 	subject := "systems.updates." + system.Hostname
 	log.Printf("[DEBUG] Publishing to subject: %s", subject)
@@ -231,6 +116,7 @@ func sendSystemUpdate(nc *nats.Conn) {
 	}
 }
 
+// Finds the external IP address of the system
 func getIPAddress() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -249,4 +135,45 @@ func getIPAddress() (string, error) {
 	}
 
 	return "", fmt.Errorf("no valid external IP address found")
+}
+
+func main() {
+	// NATS server URL with authentication
+	natsURL := "nats://admin:password@192.168.1.206:4222"
+
+	log.Printf("[DEBUG] Connecting to NATS at %s...", natsURL)
+	nc, err := nats.Connect(natsURL,
+		nats.Name("System Updates Publisher"),
+		nats.Timeout(10*time.Second),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1), // Unlimited reconnections
+		nats.ReconnectHandler(func(nc *nats.Conn) {
+			log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
+		}),
+		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+			log.Printf("[ERROR] Disconnected from NATS: %v", err)
+		}),
+		nats.ClosedHandler(func(nc *nats.Conn) {
+			log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
+		}),
+	)
+	if err != nil {
+		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
+	}
+	defer nc.Close()
+	log.Println("[INFO] Successfully connected to NATS")
+
+	// Send the first update immediately
+	sendSystemUpdate(nc)
+
+	// Run the client as a long-running daemon
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			sendSystemUpdate(nc)
+		}
+	}
 }
