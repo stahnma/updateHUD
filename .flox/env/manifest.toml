@@ -69,6 +69,10 @@ natscli.pkg-path = "natscli"
 ## -------------------------------------------------------------------
 [services]
 # myservice.command = "python3 -m http.server"
+nats-daemon.command = "make -C nats-daemon"
+server.command = "make run -C server"
+
+
 
 
 ## Other Environment Options -----------------------------------------
