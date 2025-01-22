@@ -1,14 +1,16 @@
 <table>
-    <thead>
-        <tr>
-            <th>Hostname</th>
-            <th>OS</th>
-            <th>Architecture</th>
-            <th>IP Address</th>
-            <th>Updates Available</th>
-        </tr>
-    </thead>
-    <tbody>
+<thead>
+    <tr>
+        <th></th> <!-- Chevron Column -->
+        <th class="sortable" data-column="hostname">Hostname</th>
+        <th class="sortable" data-column="os">OS</th>
+        <th class="sortable" data-column="architecture">Architecture</th>
+        <th class="sortable" data-column="ip">IP Address</th>
+        <th class="sortable" data-column="updates_available">Updates Available</th>
+        <th class="sortable" data-column="last_seen">Last Seen SSSS </th>
+    </tr>
+</thead>
+ <tbody>
         {{range .}}
         <tr data-hostname="{{.Hostname}}">
             <td>{{.Hostname}}</td>
@@ -16,6 +18,7 @@
             <td>{{.Architecture}}</td>
             <td>{{.Ip}}</td>
             <td>{{if .UpdatesAvailable}}Yes{{else}}No{{end}}</td>
+            <td>{{.LastSeen}}</td>
         </tr>
         {{end}}
     </tbody>

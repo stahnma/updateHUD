@@ -182,3 +182,13 @@ button:disabled {
 }
 
 
+
+th {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+th:hover {
+    color: blue;
+}
+

@@ -1,18 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
     const systemsTable = document.getElementById("systems");
+    let sortOrder = {
+        column: "hostname", // Default sort column
+        ascending: true, // Default sort order
+    };
 
     // Fetch and render systems list
-    fetch("/api/systems")
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`Failed to fetch systems: ${response.status}`);
+    function fetchSystems() {
+        fetch("/api/systems")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch systems: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((systems) => {
+                renderSystems(systems);
+            })
+            .catch((error) => {
+                console.error("[ERROR] Failed to fetch systems:", error);
+            });
+    }
+
+    // Render systems data into the table
+    function renderSystems(systems) {
+        // Sort the systems based on the current sort order
+        systems.sort((a, b) => {
+            const aValue = a[sortOrder.column] || "";
+            const bValue = b[sortOrder.column] || "";
+            if (sortOrder.ascending) {
+                return aValue.toString().localeCompare(bValue.toString());
+            } else {
+                return bValue.toString().localeCompare(aValue.toString());
             }
-            return response.json();
-        })
-        .then((systems) => {
-            const rows = systems
-                .map(
-                    (system) => `
+        });
+
+        // Generate table rows
+        const rows = systems
+            .map(
+                (system) => `
                     <tr data-hostname="${system.hostname}">
                         <td class="chevron-cell"><span class="chevron">▶</span></td>
                         <td>${system.hostname}</td>
@@ -20,20 +46,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${system.architecture}</td>
                         <td>${system.ip}</td>
                         <td>${system.updates_available ? "Yes" : "No"}</td>
+                        <td>${system.last_seen}</td>
                     </tr>
                     <tr class="details-row" data-hostname="${system.hostname}" style="display: none;">
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="details-content">Loading...</div>
                         </td>
                     </tr>
                 `
-                )
-                .join("");
-            systemsTable.innerHTML = rows;
-        })
-        .catch((error) => {
-            console.error("[ERROR] Failed to fetch systems:", error);
-        });
+            )
+            .join("");
+        systemsTable.innerHTML = rows;
+    }
 
     // Handle row toggle for details
     systemsTable.addEventListener("click", (event) => {
@@ -102,5 +126,26 @@ document.addEventListener("DOMContentLoaded", () => {
             chevron.textContent = "▶";
         }
     });
+
+    // Add event listeners to table headers for sorting
+    document.querySelectorAll("th.sortable").forEach((header) => {
+        header.addEventListener("click", () => {
+            const column = header.dataset.column;
+
+            // Toggle sort order if the same column is clicked
+            if (sortOrder.column === column) {
+                sortOrder.ascending = !sortOrder.ascending;
+            } else {
+                sortOrder.column = column;
+                sortOrder.ascending = true;
+            }
+
+            // Fetch and re-render the systems with updated sorting
+            fetchSystems();
+        });
+    });
+
+    // Initial fetch
+    fetchSystems();
 });
 
