@@ -26,9 +26,14 @@ func getAptUpdates() []Update {
 	for _, line := range lines {
 		fields := strings.Fields(line)
 		if len(fields) >= 2 && !strings.HasPrefix(line, "Listing") {
-			packageName := fields[0]
+			// Split package name into name and source
+			parts := strings.Split(fields[0], "/")
+			packageName := parts[0]
+			source := "unknown"
+			if len(parts) > 1 {
+				source = parts[1]
+			}
 			version := fields[1]
-			source := getAptSource(packageName)
 			debugLog("Found update: package=%s version=%s source=%s", packageName, version, source)
 			updates = append(updates, Update{
 				Name:    packageName,
