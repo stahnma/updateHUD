@@ -136,6 +136,20 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
+    // Format timestamp to be more user-friendly
+    function formatTimestamp(isoTimestamp) {
+        const date = new Date(isoTimestamp);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        const month = months[date.getUTCMonth()];
+        const year = date.getUTCFullYear();
+        const hours = date.getUTCHours().toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+        const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+        
+        return `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
+    }
+
     // Render systems data into the table
     function renderSystems(systems) {
         // Sort the systems based on the current sort order
@@ -160,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${system.architecture}</td>
                         <td>${system.ip}</td>
                         <td>${system.updates_available ? "Yes" : "No"}</td>
-                        <td>${system.last_seen}</td>
+                        <td>${formatTimestamp(system.last_seen)}</td>
                     </tr>
                     <tr class="details-row" data-hostname="${system.hostname}" style="display: none;">
                         <td colspan="7">

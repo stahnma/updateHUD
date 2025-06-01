@@ -32,7 +32,7 @@ func NewBboltStorage(dbPath string) (*BboltStorage, error) {
 func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 	s.Lock()
 	defer s.Unlock()
-	system.LastSeen = time.Now().Format(time.RFC3339) // Add current timestamp
+	system.LastSeen = time.Now().UTC().Format(time.RFC3339) // Ensure UTC timestamp
 
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte("systems"))
