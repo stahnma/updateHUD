@@ -1,43 +1,108 @@
+.PHONY: all build clean test fmt lint install client server linux-all help
 
+# Project configuration
+NAME := mqttfun
+VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
-NAME=mqttfun
+# Build configuration
+GO := go
+GOFLAGS := -v
+LDFLAGS := -ldflags "-X main.Version=$(VERSION)"
 
-newbuild: fmt tidy
-	make -C client
-	make -C server
+# Default target
+all: build
 
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all          - Build all components (default)"
+	@echo "  build        - Build client and server"
+	@echo "  clean        - Clean all build artifacts"
+	@echo "  test         - Run all tests"
+	@echo "  fmt          - Format Go code"
+	@echo "  lint         - Run linters"
+	@echo "  install      - Install binaries"
+	@echo "  linux-all    - Build for all Linux architectures"
+	@echo "  client       - Build only the client"
+	@echo "  server       - Build only the server"
 
+# Build targets
+build: fmt tidy client server
 
-build: fmt tidy
-	go build .
+client:
+	@echo "Building client..."
+	$(MAKE) -C client build
+
+server:
+	@echo "Building server..."
+	$(MAKE) -C server build
+
+# Cross-compilation targets
+linux-all:
+	@echo "Building for all Linux architectures..."
+	$(MAKE) -C client linux
+	GOOS=linux GOARCH=amd64 $(MAKE) -C server build
+	GOOS=linux GOARCH=arm64 $(MAKE) -C server build
+
+# Development targets
+fmt:
+	@echo "Formatting code..."
+	$(GO) fmt ./...
+	$(MAKE) -C client fmt
+	$(MAKE) -C server fmt
+
+lint:
+	@echo "Running linters..."
+	$(GO) vet ./...
+	@if command -v golangci-lint >/dev/null; then \
+		golangci-lint run ./...; \
+	else \
+		echo "golangci-lint not installed. Run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
+	fi
+
+test:
+	@echo "Running tests..."
+	$(GO) test -v ./...
+	$(MAKE) -C client test
+	$(MAKE) -C server test
 
 tidy:
-	go mod tidy
+	@echo "Tidying modules..."
+	$(GO) mod tidy
+	$(MAKE) -C client tidy
+	$(MAKE) -C server tidy
 
-fmt:
-	go fmt ./...
+# Cleanup
+clean:
+	@echo "Cleaning build artifacts..."
+	$(GO) clean -modcache
+	$(MAKE) -C client clean
+	$(MAKE) -C server clean
+	rm -f $(NAME)
+
+# Installation
+install: build
+	@echo "Installing binaries..."
+	install -d $(DESTDIR)/usr/local/bin
+	install -p -m755 client/client $(DESTDIR)/usr/local/bin/$(NAME)-client
+	install -p -m755 server/server $(DESTDIR)/usr/local/bin/$(NAME)-server
 
 run: fmt
 	go run *.go
 
-install: build
-#	sudo install -p -m755 slack_channel_list /usr/local/bin
-#
-arm: fmt
-	GOOS=linux GOARCH=arm go build .
-	scp $(NAME) root@fred:
-
-rpm: fmt
-	GOOS=linux GOARCH=amd64 go build .
-	scp $(NAME) root@giga2:
-
-clean:
-	rm -f $(NAME) mqttfun
-	go clean -modcache
-
 json:
 	cat message | jq > m ; mv m message
 
-
 iter:
 	go build -o upc client/main.go 
+
+rerun:
+	flox services stop
+	rm -f server/systems.db
+	$(MAKE) -C client linux
+	cp -pr client/client.linux.arm ~
+	cp -pr client/client.linux.amd64 ~
+	scp client/client.linux.amd64 stahnma@rog:client.linux.amd64
+
