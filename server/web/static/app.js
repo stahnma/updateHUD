@@ -4,6 +4,41 @@ document.addEventListener("DOMContentLoaded", () => {
         column: "hostname", // Default sort column
         ascending: true, // Default sort order
     };
+    let systemsData = []; // Store the current systems data
+
+    // Initialize WebSocket connection
+    function initWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+        ws.onopen = () => {
+            console.log("[INFO] WebSocket connection established");
+        };
+
+        ws.onmessage = (event) => {
+            const update = JSON.parse(event.data);
+            
+            // Update the systemsData array
+            const index = systemsData.findIndex(s => s.hostname === update.hostname);
+            if (index !== -1) {
+                systemsData[index] = update;
+            } else {
+                systemsData.push(update);
+            }
+            
+            // Re-render the table with the updated data
+            renderSystems(systemsData);
+        };
+
+        ws.onclose = () => {
+            console.log("[WARN] WebSocket connection closed. Retrying in 5 seconds...");
+            setTimeout(initWebSocket, 5000);
+        };
+
+        ws.onerror = (error) => {
+            console.error("[ERROR] WebSocket error:", error);
+        };
+    }
 
     // Fetch and render systems list
     function fetchSystems() {
@@ -15,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return response.json();
             })
             .then((systems) => {
+                systemsData = systems; // Update the stored data
                 renderSystems(systems);
             })
             .catch((error) => {
@@ -42,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <tr data-hostname="${system.hostname}">
                         <td class="chevron-cell"><span class="chevron">▶</span></td>
                         <td>${system.hostname}</td>
-                        <td>${system.os} ${system.os_version}</td>
+                        <td>${system.os} ${system.os_version || ''}</td>
                         <td>${system.architecture}</td>
                         <td>${system.ip}</td>
                         <td>${system.updates_available ? "Yes" : "No"}</td>
@@ -57,6 +93,15 @@ document.addEventListener("DOMContentLoaded", () => {
             )
             .join("");
         systemsTable.innerHTML = rows;
+
+        // Restore expanded rows
+        document.querySelectorAll('.details-row[style="display: table-row"]').forEach(row => {
+            const hostname = row.dataset.hostname;
+            const chevron = document.querySelector(`tr[data-hostname="${hostname}"] .chevron`);
+            if (chevron) {
+                chevron.textContent = "▼";
+            }
+        });
     }
 
     // Handle row toggle for details
@@ -74,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
             detailsRow.style.display = "table-row";
             chevron.textContent = "▼";
 
-            // Fetch details only if not already loaded
-            if (!detailsContent.dataset.loaded) {
+            // Fetch details only if not already loaded or if data is stale
+            if (!detailsContent.dataset.loaded || Date.now() - detailsContent.dataset.loadedTime > 60000) {
                 fetch(`/api/systems/${hostname}`)
                     .then((response) => {
                         if (!response.ok) {
@@ -84,32 +129,39 @@ document.addEventListener("DOMContentLoaded", () => {
                         return response.json();
                     })
                     .then((data) => {
-                        const updatesList = data.pending_updates
-                            .map(
-                                (update) =>
-                                    `<tr>
-                                        <td>${update.name}</td>
-                                        <td>${update.version || "N/A"}</td>
-                                        <td>${update.source}</td>
-                                    </tr>`
-                            )
-                            .join("");
-                        detailsContent.innerHTML = `
-                            <h3>Pending Updates for ${data.hostname}</h3>
-                            <table class="updates-table">
-                                <thead>
-                                    <tr>
-                                        <th>Package</th>
-                                        <th>Version</th>
-                                        <th>Source</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${updatesList}
-                                </tbody>
-                            </table>
-                        `;
+                        if (data.pending_updates && data.pending_updates.length > 0) {
+                            const updatesList = data.pending_updates
+                                .map(
+                                    (update) =>
+                                        `<tr>
+                                            <td>${update.name}</td>
+                                            <td>${update.version || "N/A"}</td>
+                                            <td>${update.source}</td>
+                                        </tr>`
+                                )
+                                .join("");
+                            detailsContent.innerHTML = `
+                                <h3>Pending Updates for ${data.hostname}</h3>
+                                <table class="updates-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Package</th>
+                                            <th>Version</th>
+                                            <th>Source</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${updatesList}
+                                    </tbody>
+                                </table>
+                            `;
+                        } else {
+                            detailsContent.innerHTML = `
+                                <h3>No pending updates for ${data.hostname}</h3>
+                            `;
+                        }
                         detailsContent.dataset.loaded = "true";
+                        detailsContent.dataset.loadedTime = Date.now();
                     })
                     .catch((error) => {
                         console.error(
@@ -140,12 +192,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 sortOrder.ascending = true;
             }
 
-            // Fetch and re-render the systems with updated sorting
-            fetchSystems();
+            // Re-render the systems with updated sorting
+            renderSystems(systemsData);
         });
     });
 
-    // Initial fetch
+    // Initial fetch and WebSocket connection
     fetchSystems();
+    initWebSocket();
 });
 
