@@ -12,6 +12,7 @@ import (
 
 func StartSubscriber(store storage.Storage, natsURL string) {
 	// Connect to NATS
+	log.Printf("[DEBUG] ---- NATS Subscriber Details ----")
 	log.Printf("[DEBUG] Attempting to connect to NATS at %s...", natsURL)
 	nc, err := nats.Connect(natsURL,
 		nats.Name("System Updates Subscriber"),
@@ -32,13 +33,19 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
 	}
 	defer nc.Close()
-	log.Println("[INFO] Successfully connected to NATS")
+	log.Printf("[INFO] Successfully connected to NATS at %s", nc.ConnectedUrl())
+	log.Printf("[DEBUG] Server ID: %s", nc.ConnectedServerId())
+	log.Printf("[DEBUG] Client ID: %s", nc.ConnectedClusterName())
 
 	// Subscribe to the subject
 	subject := "systems.updates.>"
-	log.Printf("[DEBUG] Subscribing to subject: %s", subject)
+	log.Printf("[DEBUG] Subscribing to subject pattern: %s", subject)
 	sub, err := nc.Subscribe(subject, func(m *nats.Msg) {
-		log.Printf("[INFO] Received message on subject %s: %s", m.Subject, string(m.Data))
+		log.Printf("[DEBUG] ---- Received NATS Message ----")
+		log.Printf("[DEBUG] Subject: %s", m.Subject)
+		log.Printf("[DEBUG] Reply: %s", m.Reply)
+		log.Printf("[DEBUG] Message size: %d bytes", len(m.Data))
+		log.Printf("[DEBUG] Raw message: %s", string(m.Data))
 
 		// Parse the message into a System struct
 		var system models.System
@@ -47,8 +54,18 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 			return
 		}
 
-		// Log parsed system data for debugging
-		log.Printf("[DEBUG] Parsed system data: %+v", system)
+		// Log parsed system data
+		log.Printf("[DEBUG] Parsed system data:")
+		log.Printf("[DEBUG] - Hostname: %s", system.Hostname)
+		log.Printf("[DEBUG] - IP: %s", system.Ip)
+		log.Printf("[DEBUG] - OS: %s %s", system.OS, system.OSVersion)
+		log.Printf("[DEBUG] - Updates Available: %v", system.UpdatesAvailable)
+		if system.UpdatesAvailable {
+			log.Printf("[DEBUG] - Number of Updates: %d", len(system.PendingUpdates))
+			for _, update := range system.PendingUpdates {
+				log.Printf("[DEBUG] - Update: %s %s from %s", update.Name, update.Version, update.Source)
+			}
+		}
 
 		// Store the system data
 		if err := store.SaveSystem(system.Hostname, system); err != nil {
@@ -56,12 +73,14 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 		} else {
 			log.Printf("[INFO] Successfully saved system data for %s", system.Hostname)
 		}
+		log.Printf("[DEBUG] ---- End NATS Message Processing ----")
 	})
 	if err != nil {
 		log.Fatalf("[ERROR] Failed to subscribe to subject %s: %v", subject, err)
 	}
 
 	log.Printf("[INFO] Successfully subscribed to subject %s. Subscription ID: %v", subject, sub)
+	log.Printf("[DEBUG] ---- End NATS Subscriber Details ----")
 
 	// Keep the subscriber running
 	log.Println("[INFO] NATS subscriber is now running and listening for messages...")

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,6 +15,22 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stahnma/mqttfun/client/updates"
 )
+
+// Global debug flag
+var isDebugEnabled bool
+
+func init() {
+	// Check DEBUG environment variable
+	debugEnv := strings.ToLower(os.Getenv("DEBUG"))
+	isDebugEnabled = debugEnv == "1" || debugEnv == "true"
+}
+
+// debugLog prints a message only if debug logging is enabled
+func debugLog(format string, v ...interface{}) {
+	if isDebugEnabled {
+		log.Printf("[DEBUG] "+format, v...)
+	}
+}
 
 type System struct {
 	Hostname         string           `json:"hostname"`
@@ -101,19 +118,69 @@ func sendSystemUpdate(nc *nats.Conn) {
 		return
 	}
 
-	// Log message size
-	log.Printf("[DEBUG] Message size: %d bytes", len(data))
+	// Enhanced logging for NATS publishing
+	debugLog("---- NATS Publishing Details ----")
+	debugLog("Connected to NATS server: %s", nc.ConnectedUrl())
+	debugLog("Client ID: %s", nc.ConnectedClusterName())
+	debugLog("Connection Statistics:")
+	debugLog("- Reconnects: %d", nc.Stats().Reconnects)
+	debugLog("- Messages In: %d", nc.Stats().InMsgs)
+	debugLog("- Messages Out: %d", nc.Stats().OutMsgs)
+	debugLog("- Bytes In: %d", nc.Stats().InBytes)
+	debugLog("- Bytes Out: %d", nc.Stats().OutBytes)
+	debugLog("Message size: %d bytes", len(data))
+	debugLog("System hostname: %s", system.Hostname)
+	debugLog("System IP: %s", system.Ip)
+	debugLog("Updates available: %v", system.UpdatesAvailable)
+	if system.UpdatesAvailable {
+		debugLog("Number of pending updates: %d", len(system.PendingUpdates))
+	}
 
 	// Publish the message
 	subject := "systems.updates." + system.Hostname
-	log.Printf("[DEBUG] Publishing to subject: %s", subject)
-	log.Printf("[DEBUG] Message: %s", string(data))
+	debugLog("Publishing to subject: %s", subject)
+	debugLog("Message payload: %s", string(data))
 
-	if err := nc.Publish(subject, data); err != nil {
-		log.Printf("[ERROR] Failed to publish message to NATS: %v", err)
-	} else {
+	// Set a context with timeout for the publish operation
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Try to publish with timeout
+	publishChan := make(chan error, 1)
+	go func() {
+		publishChan <- nc.Publish(subject, data)
+	}()
+
+	select {
+	case err := <-publishChan:
+		if err != nil {
+			log.Printf("[ERROR] Failed to publish message to NATS: %v", err)
+			return
+		}
 		log.Printf("[INFO] Successfully published to subject: %s", subject)
+		
+		// Try to flush with timeout
+		flushChan := make(chan error, 1)
+		go func() {
+			flushChan <- nc.Flush()
+		}()
+
+		select {
+		case err := <-flushChan:
+			if err != nil {
+				log.Printf("[ERROR] Failed to flush NATS connection: %v", err)
+			} else {
+				debugLog("Successfully flushed NATS connection")
+			}
+		case <-time.After(5 * time.Second):
+			log.Printf("[ERROR] Flush timeout after 5 seconds")
+		}
+
+	case <-ctx.Done():
+		log.Printf("[ERROR] Publish timeout after 10 seconds")
 	}
+
+	debugLog("---- End NATS Publishing Details ----")
 }
 
 // Finds the external IP address of the system
@@ -139,41 +206,76 @@ func getIPAddress() (string, error) {
 
 func main() {
 	// NATS server URL with authentication
-	natsURL := "nats://admin:password@192.168.1.206:4222"
+	natsURL := "nats://admin:password@192.168.1.167:4222"
 
 	log.Printf("[DEBUG] Connecting to NATS at %s...", natsURL)
 	nc, err := nats.Connect(natsURL,
 		nats.Name("System Updates Publisher"),
-		nats.Timeout(10*time.Second),
+		nats.Timeout(30*time.Second),      // Increased timeout
+		nats.PingInterval(20*time.Second), // Add periodic ping
+		nats.MaxPingsOutstanding(5),       // Allow 5 outstanding pings
 		nats.RetryOnFailedConnect(true),
-		nats.MaxReconnects(-1), // Unlimited reconnections
+		nats.MaxReconnects(-1),            // Unlimited reconnections
+		nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 		nats.ReconnectHandler(func(nc *nats.Conn) {
 			log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
+			debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d", 
+				nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
 		}),
 		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
-			log.Printf("[ERROR] Disconnected from NATS: %v", err)
+			if err != nil {
+				log.Printf("[ERROR] Disconnected from NATS due to error: %v", err)
+			} else {
+				log.Printf("[INFO] Disconnected from NATS")
+			}
 		}),
 		nats.ClosedHandler(func(nc *nats.Conn) {
 			log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
+			debugLog("Final connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
+				nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
 		}),
 	)
 	if err != nil {
 		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
 	}
 	defer nc.Close()
-	log.Println("[INFO] Successfully connected to NATS")
+	log.Printf("[INFO] Successfully connected to NATS at %s", nc.ConnectedUrl())
+	debugLog("Server ID: %s", nc.ConnectedServerId())
+
+	// Function to check NATS connection health
+	checkConnection := func() bool {
+		if !nc.IsConnected() {
+			log.Printf("[WARN] NATS connection is not active")
+			return false
+		}
+		if err := nc.Flush(); err != nil {
+			log.Printf("[WARN] NATS connection health check failed: %v", err)
+			return false
+		}
+		return true
+	}
 
 	// Send the first update immediately
-	sendSystemUpdate(nc)
+	if checkConnection() {
+		sendSystemUpdate(nc)
+	}
 
 	// Run the client as a long-running daemon
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
+	// Add a separate ticker for connection health checks
+	healthTicker := time.NewTicker(30 * time.Second)
+	defer healthTicker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:
-			sendSystemUpdate(nc)
+			if checkConnection() {
+				sendSystemUpdate(nc)
+			}
+		case <-healthTicker.C:
+			checkConnection()
 		}
 	}
 }
