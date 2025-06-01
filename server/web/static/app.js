@@ -5,40 +5,118 @@ document.addEventListener("DOMContentLoaded", () => {
         ascending: true, // Default sort order
     };
     let systemsData = []; // Store the current systems data
+    let ws = null;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT_ATTEMPTS = 10;
+    const INITIAL_RECONNECT_DELAY = 1000; // 1 second
 
-    // Initialize WebSocket connection
+    // Initialize WebSocket connection with exponential backoff
     function initWebSocket() {
+        if (ws !== null && ws.readyState !== WebSocket.CLOSED) {
+            console.log("[DEBUG] WebSocket connection already exists");
+            return;
+        }
+
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        console.log(`[DEBUG] Attempting to connect to WebSocket at ${wsUrl}`);
 
-        ws.onopen = () => {
-            console.log("[INFO] WebSocket connection established");
-        };
+        try {
+            ws = new WebSocket(wsUrl);
 
-        ws.onmessage = (event) => {
-            const update = JSON.parse(event.data);
-            
-            // Update the systemsData array
-            const index = systemsData.findIndex(s => s.hostname === update.hostname);
-            if (index !== -1) {
-                systemsData[index] = update;
-            } else {
-                systemsData.push(update);
-            }
-            
-            // Re-render the table with the updated data
-            renderSystems(systemsData);
-        };
+            ws.onopen = () => {
+                console.log("[INFO] WebSocket connection established");
+                reconnectAttempts = 0; // Reset reconnection attempts on successful connection
+                
+                // Set up ping interval
+                const pingInterval = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send('ping');
+                    } else {
+                        clearInterval(pingInterval);
+                    }
+                }, 30000); // Send ping every 30 seconds
+            };
 
-        ws.onclose = () => {
-            console.log("[WARN] WebSocket connection closed. Retrying in 5 seconds...");
-            setTimeout(initWebSocket, 5000);
-        };
+            ws.onmessage = (event) => {
+                try {
+                    const update = JSON.parse(event.data);
+                    
+                    // Update the systemsData array
+                    const index = systemsData.findIndex(s => s.hostname === update.hostname);
+                    if (index !== -1) {
+                        systemsData[index] = update;
+                    } else {
+                        systemsData.push(update);
+                    }
+                    
+                    // Re-render the table with the updated data
+                    renderSystems(systemsData);
+                } catch (error) {
+                    console.error("[ERROR] Failed to process WebSocket message:", error);
+                }
+            };
 
-        ws.onerror = (error) => {
-            console.error("[ERROR] WebSocket error:", error);
-        };
+            ws.onclose = (event) => {
+                console.log(`[WARN] WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}`);
+                clearWebSocket();
+                
+                // Implement exponential backoff for reconnection
+                if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000); // Cap at 30 seconds
+                    console.log(`[INFO] Attempting to reconnect in ${delay/1000} seconds... (Attempt ${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`);
+                    setTimeout(() => {
+                        reconnectAttempts++;
+                        initWebSocket();
+                    }, delay);
+                } else {
+                    console.error("[ERROR] Maximum reconnection attempts reached. Please refresh the page.");
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error("[ERROR] WebSocket error:", error);
+            };
+
+        } catch (error) {
+            console.error("[ERROR] Failed to create WebSocket connection:", error);
+            clearWebSocket();
+        }
     }
+
+    // Clean up WebSocket connection
+    function clearWebSocket() {
+        if (ws !== null) {
+            // Remove all event listeners to prevent memory leaks
+            ws.onopen = null;
+            ws.onclose = null;
+            ws.onmessage = null;
+            ws.onerror = null;
+            
+            // Close the connection if it's still open
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            ws = null;
+        }
+    }
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            // Attempt to reconnect when page becomes visible
+            if (ws === null || ws.readyState === WebSocket.CLOSED) {
+                console.log("[INFO] Page became visible, attempting to reconnect WebSocket");
+                reconnectAttempts = 0; // Reset reconnection attempts
+                initWebSocket();
+            }
+        }
+    });
+
+    // Handle page unload
+    window.addEventListener('beforeunload', () => {
+        clearWebSocket();
+    });
 
     // Fetch and render systems list
     function fetchSystems() {
