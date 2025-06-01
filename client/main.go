@@ -158,7 +158,7 @@ func sendSystemUpdate(nc *nats.Conn) {
 			return
 		}
 		log.Printf("[INFO] Successfully published to subject: %s", subject)
-		
+
 		// Try to flush with timeout
 		flushChan := make(chan error, 1)
 		go func() {
@@ -219,7 +219,7 @@ func main() {
 		nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 		nats.ReconnectHandler(func(nc *nats.Conn) {
 			log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
-			debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d", 
+			debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
 				nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
 		}),
 		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
