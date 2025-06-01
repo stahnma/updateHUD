@@ -11,12 +11,14 @@ import (
 func getAptUpdates() []Update {
 	var updates []Update
 	if _, err := os.Stat("/usr/bin/apt"); err != nil {
+		debugLog("apt not found at /usr/bin/apt")
 		return updates
 	}
 
+	debugLog("Checking for apt updates...")
 	out, err := exec.Command("/usr/bin/apt", "list", "--upgradable").Output()
 	if err != nil {
-		log.Printf("Error checking updates with apt: %v", err)
+		log.Printf("[ERROR] Error checking updates with apt: %v", err)
 		return updates
 	}
 
@@ -27,6 +29,7 @@ func getAptUpdates() []Update {
 			packageName := fields[0]
 			version := fields[1]
 			source := getAptSource(packageName)
+			debugLog("Found update: package=%s version=%s source=%s", packageName, version, source)
 			updates = append(updates, Update{
 				Name:    packageName,
 				Version: version,
@@ -34,14 +37,16 @@ func getAptUpdates() []Update {
 			})
 		}
 	}
+	debugLog("Found %d apt updates", len(updates))
 	return updates
 }
 
 // getAptSource determines the source repository for a package
 func getAptSource(packageName string) string {
+	debugLog("Getting source for package: %s", packageName)
 	out, err := exec.Command("/usr/bin/apt-cache", "policy", packageName).Output()
 	if err != nil {
-		log.Printf("Error checking repository source for package %s: %v", packageName, err)
+		log.Printf("[ERROR] Error checking repository source for package %s: %v", packageName, err)
 		return "unknown"
 	}
 
@@ -51,9 +56,12 @@ func getAptSource(packageName string) string {
 		if strings.HasPrefix(line, " 500 ") {
 			fields := strings.Fields(line)
 			if len(fields) > 1 {
-				return fields[len(fields)-1]
+				source := fields[len(fields)-1]
+				debugLog("Found source %s for package %s", source, packageName)
+				return source
 			}
 		}
 	}
+	debugLog("No source found for package %s, using 'unknown'", packageName)
 	return "unknown"
 }

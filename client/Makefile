@@ -1,16 +1,52 @@
+.PHONY: all build clean test fmt tidy linux help
 
+# Build configuration
+NAME := client
+GO := go
+GOFLAGS := -v
+VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+LDFLAGS := -ldflags "-X main.Version=$(VERSION)"
 
-fmt:
-	go fmt ./...
+# Default target
+all: build
 
-build: fmt
-	go build -o client .
+# Help target
+help:
+	@echo "Available client targets:"
+	@echo "  all          - Build client (default)"
+	@echo "  build        - Build client binary"
+	@echo "  clean        - Clean build artifacts"
+	@echo "  test         - Run tests"
+	@echo "  fmt          - Format code"
+	@echo "  tidy         - Tidy Go modules"
+	@echo "  linux        - Build Linux binaries"
 
+# Build targets
+build: fmt tidy
+	@echo "Building client binary..."
+	$(GO) build $(GOFLAGS) $(LDFLAGS) -o $(NAME) .
 
+# Cross-compilation for Linux
 linux: fmt
-	GOOS=linux GOARCH=amd64 go build -o client.linux.amd64 .
-	GOOS=linux GOARCH=arm64 go build -o client.linux.arm64 .
-	GOOS=linux GOARCH=arm go build -o client.linux.arm .
+	@echo "Building Linux binaries..."
+	GOOS=linux GOARCH=amd64 $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(NAME).linux.amd64 .
+	GOOS=linux GOARCH=arm64 $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(NAME).linux.arm64 .
+	GOOS=linux GOARCH=arm $(GO) build $(GOFLAGS) $(LDFLAGS) -o $(NAME).linux.arm .
 
+# Development targets
+fmt:
+	@echo "Formatting code..."
+	$(GO) fmt ./...
+
+test:
+	@echo "Running tests..."
+	$(GO) test -v ./...
+
+tidy:
+	@echo "Tidying modules..."
+	$(GO) mod tidy
+
+# Cleanup
 clean:
-	rm -f  client client.linux.amd64
+	@echo "Cleaning build artifacts..."
+	rm -f $(NAME) $(NAME).linux.*
