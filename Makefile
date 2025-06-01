@@ -77,7 +77,6 @@ tidy:
 # Cleanup
 clean:
 	@echo "Cleaning build artifacts..."
-	$(GO) clean -modcache
 	$(MAKE) -C client clean
 	$(MAKE) -C server clean
 	rm -f $(NAME)
@@ -102,6 +101,7 @@ rerun:
 	flox services stop
 	rm -f server/systems.db
 	$(MAKE) -C client linux
+	$(MAKE) -C server build
 	cp -pr client/client.linux.arm ~
 	cp -pr client/client.linux.amd64 ~
 	scp client/client.linux.amd64 stahnma@rog:client.linux.amd64
