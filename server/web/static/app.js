@@ -150,6 +150,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
     }
 
+    function getUpdatePriority(updates) {
+        if (!updates) return 'none';
+        // Check for security updates
+        const hasSecurityUpdates = updates.some(u =>
+            u.name.toLowerCase().includes('security') ||
+            u.source.toLowerCase().includes('security')
+        );
+        if (hasSecurityUpdates) return 'high';
+        if (updates.length > 5) return 'medium';
+        if (updates.length > 0) return 'low';
+        return 'none';
+    }
+
     // Render systems data into the table
     function renderSystems(systems) {
         // Sort the systems based on the current sort order
@@ -173,15 +186,21 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${system.os} ${system.os_version || ''}</td>
                         <td>${system.architecture}</td>
                         <td>${system.ip}</td>
-                        <td>${system.updates_available ? "Yes" : "No"}</td>
+                        <td>${system.updates_available ?
+                            `<span class="update-badge update-available priority-${getUpdatePriority(system.pending_updates)}"
+                                   title="Updates available: ${system.pending_updates ? system.pending_updates.map(u => u.name).join(', ') : 'Click for details'}">
+                                Updates (${system.pending_updates ? system.pending_updates.length : '?'})
+                                ${getUpdatePriority(system.pending_updates) === 'high' ? ' ⚠️' : ''}
+                            </span>` :
+                            `<span class="update-badge up-to-date">Up to date</span>`
+                        }</td>
                         <td>${formatTimestamp(system.last_seen)}</td>
                     </tr>
                     <tr class="details-row" data-hostname="${system.hostname}" style="display: none;">
                         <td colspan="7">
                             <div class="details-content">Loading...</div>
                         </td>
-                    </tr>
-                `
+                    </tr>`
             )
             .join("");
         systemsTable.innerHTML = rows;

@@ -93,7 +93,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Modal styles (if needed in the future) */
+/* Modal styles */
 .modal {
     display: none;
     position: fixed;
@@ -181,8 +181,6 @@ button:disabled {
     font-weight: bold;
 }
 
-
-
 th {
     cursor: pointer;
     text-decoration: underline;
@@ -190,5 +188,54 @@ th {
 
 th:hover {
     color: blue;
+}
+
+/* Update badge styles */
+.update-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.update-available {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.up-to-date {
+    background-color: #51cf66;
+    color: white;
+}
+
+/* Priority styles */
+.priority-high {
+    background-color: #ff6b6b;
+    border: 2px solid #ff8787;
+    animation: pulse 2s infinite;
+}
+
+.priority-medium {
+    background-color: #ffd43b;
+    color: #000;
+}
+
+.priority-low {
+    background-color: #339af0;
+    color: white;
+}
+
+.priority-none {
+    background-color: #51cf66;
+    color: white;
+}
+
+/* Pulsing animation for high priority updates */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
