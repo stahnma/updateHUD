@@ -6,6 +6,42 @@
     <title>System Updates</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="/static/app.js" defer></script>
+     <script defer>
+        document.addEventListener('DOMContentLoaded', () => {
+            const table = document.querySelector('table');
+            const headers = table.querySelectorAll('th');
+
+            headers.forEach((header, index) => {
+                if (index === 0) return; // Skip the first column (chevron toggle)
+
+                let ascending = true;
+
+                header.addEventListener('click', () => {
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                    rows.sort((rowA, rowB) => {
+                        const cellA = rowA.children[index].textContent.trim();
+                        const cellB = rowB.children[index].textContent.trim();
+
+                        if (!isNaN(cellA) && !isNaN(cellB)) {
+                            return ascending ? cellA - cellB : cellB - cellA;
+                        }
+
+                        return ascending
+                            ? cellA.localeCompare(cellB)
+                            : cellB.localeCompare(cellA);
+                    });
+
+                    ascending = !ascending;
+
+                    rows.forEach(row => table.querySelector('tbody').appendChild(row));
+
+                    headers.forEach(h => h.classList.remove('ascending', 'descending'));
+                    header.classList.add(ascending ? 'ascending' : 'descending');
+                });
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>System Updates</h1>
