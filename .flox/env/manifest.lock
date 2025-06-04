@@ -42,29 +42,29 @@
     {
       "attr_path": "ack",
       "broken": false,
-      "derivation": "/nix/store/5ab8y5x0md69ydb2nni5b02f0y0b75qv-perl5.40.0-ack-3.8.0.drv",
+      "derivation": "/nix/store/r76g80wpnb9jpf3m9l1bmda7pngr0k39-perl5.40.0-ack-3.8.2.drv",
       "description": "Grep-like tool tailored to working with large trees of source code",
       "install_id": "ack",
       "license": "[ Artistic-2.0 ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "perl5.40.0-ack-3.8.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "perl5.40.0-ack-3.8.2",
       "pname": "ack",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:14:37.614871Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:25:05.796709Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "3.8.0",
+      "version": "3.8.2",
       "outputs_to_install": [
         "man",
         "out"
       ],
       "outputs": {
-        "man": "/nix/store/hdnjn4m5h6409a2h5my53dpy7xsppbky-perl5.40.0-ack-3.8.0-man",
-        "out": "/nix/store/403lq794k6ql4pq949xqpxj3aa4j19wa-perl5.40.0-ack-3.8.0"
+        "man": "/nix/store/ypcmc5iynxmwggj9xc5jk7nb7jyyp8qc-perl5.40.0-ack-3.8.2-man",
+        "out": "/nix/store/m19fkawhxjvik2bhlbbkmzgz22dcaz5h-perl5.40.0-ack-3.8.2"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -73,29 +73,29 @@
     {
       "attr_path": "ack",
       "broken": false,
-      "derivation": "/nix/store/gyzqflk7g2kjm4saf2ncd9vqcsqldwn6-perl5.40.0-ack-3.8.0.drv",
+      "derivation": "/nix/store/s3frd10ayjqxzm7xgxmy710wyamc9gsj-perl5.40.0-ack-3.8.2.drv",
       "description": "Grep-like tool tailored to working with large trees of source code",
       "install_id": "ack",
       "license": "[ Artistic-2.0 ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "perl5.40.0-ack-3.8.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "perl5.40.0-ack-3.8.2",
       "pname": "ack",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:35:28.369381Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:45:28.173517Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "3.8.0",
+      "version": "3.8.2",
       "outputs_to_install": [
         "man",
         "out"
       ],
       "outputs": {
-        "man": "/nix/store/ab9p51a33mgrlvnky8hmnhv5fpgi17jw-perl5.40.0-ack-3.8.0-man",
-        "out": "/nix/store/ypkh74q2p0aqmpjcryqqnph0vwz5f45k-perl5.40.0-ack-3.8.0"
+        "man": "/nix/store/qj09p42bbpk7c04k68vx8iy9mwzykg76-perl5.40.0-ack-3.8.2-man",
+        "out": "/nix/store/psj8kpdvlwprdp8zmfb85dqkqms4b9sk-perl5.40.0-ack-3.8.2"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -104,29 +104,29 @@
     {
       "attr_path": "ack",
       "broken": false,
-      "derivation": "/nix/store/f69yv88mif4wkv9fic0k7lr7rkvlhjn3-perl5.40.0-ack-3.8.0.drv",
+      "derivation": "/nix/store/9fyy9zsw56df1szh2amzawx2dbwgc24n-perl5.40.0-ack-3.8.2.drv",
       "description": "Grep-like tool tailored to working with large trees of source code",
       "install_id": "ack",
       "license": "[ Artistic-2.0 ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "perl5.40.0-ack-3.8.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "perl5.40.0-ack-3.8.2",
       "pname": "ack",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:54:06.901560Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:04:01.581134Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "3.8.0",
+      "version": "3.8.2",
       "outputs_to_install": [
         "man",
         "out"
       ],
       "outputs": {
-        "man": "/nix/store/p86n7y79n94j90lgmmzg76yg9c669izj-perl5.40.0-ack-3.8.0-man",
-        "out": "/nix/store/vzibscihv03ryv8ry6a7ip63nkxpgn5d-perl5.40.0-ack-3.8.0"
+        "man": "/nix/store/k7alagl2w6wj72fwj2f98c9nlqps7m0r-perl5.40.0-ack-3.8.2-man",
+        "out": "/nix/store/m9svv4h2vazq4qlv6vinypdn1ak452w6-perl5.40.0-ack-3.8.2"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -135,29 +135,29 @@
     {
       "attr_path": "ack",
       "broken": false,
-      "derivation": "/nix/store/w1wnk8r8592j8vimllzynfdz8qldrkwv-perl5.40.0-ack-3.8.0.drv",
+      "derivation": "/nix/store/p7l6653dc5j6izggp38x7www23w9hnrh-perl5.40.0-ack-3.8.2.drv",
       "description": "Grep-like tool tailored to working with large trees of source code",
       "install_id": "ack",
       "license": "[ Artistic-2.0 ]",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "perl5.40.0-ack-3.8.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "perl5.40.0-ack-3.8.2",
       "pname": "ack",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T02:16:15.108614Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:26:10.540543Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "3.8.0",
+      "version": "3.8.2",
       "outputs_to_install": [
         "man",
         "out"
       ],
       "outputs": {
-        "man": "/nix/store/iw1fp92xxh00y72mca4zk269k8fcgyhy-perl5.40.0-ack-3.8.0-man",
-        "out": "/nix/store/37d9y6dvvcnvm32cinyknp9iz8a6fr77-perl5.40.0-ack-3.8.0"
+        "man": "/nix/store/brwab3pk1mqf6x4q5y8r4hpc4nx71sv3-perl5.40.0-ack-3.8.2-man",
+        "out": "/nix/store/gfggwid0s3rsp93m4wkx2ih75hc0lmsz-perl5.40.0-ack-3.8.2"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -166,17 +166,17 @@
     {
       "attr_path": "gnumake",
       "broken": false,
-      "derivation": "/nix/store/z0vyvvm3cqlwx4wxm7vs3y2n0yvb13l5-gnumake-4.4.1.drv",
+      "derivation": "/nix/store/254zyywz0a536zg311aysli15iw92cfj-gnumake-4.4.1.drv",
       "description": "Tool to control the generation of non-source files from sources",
       "install_id": "gnumake",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
       "name": "gnumake-4.4.1",
       "pname": "gnumake",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:14:38.521058Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:25:06.827274Z",
       "stabilities": [
         "unstable"
       ],
@@ -187,9 +187,9 @@
         "out"
       ],
       "outputs": {
-        "info": "/nix/store/c5jccx4albc6g0fcxa4ghwg27945fnby-gnumake-4.4.1-info",
-        "man": "/nix/store/mvygvl0jxvci87m9j9r393ri5jsz2ybq-gnumake-4.4.1-man",
-        "out": "/nix/store/cnkfqpa3kyi3mgk0yd8lqbrdysq7j38q-gnumake-4.4.1"
+        "info": "/nix/store/4ykdx0lpl2dn8knnab0bap11prr7zzky-gnumake-4.4.1-info",
+        "man": "/nix/store/x59n9rzr26vf9cr0aapfakhrqhg7vy18-gnumake-4.4.1-man",
+        "out": "/nix/store/wkq7f52a2xq4n24f545wy2fidm4z14f2-gnumake-4.4.1"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -198,17 +198,17 @@
     {
       "attr_path": "gnumake",
       "broken": false,
-      "derivation": "/nix/store/d3wschhaqb4bwzzy11wsr7a1xxhv5krs-gnumake-4.4.1.drv",
+      "derivation": "/nix/store/pya8baigzsh8ddrq9zhwn3ppk07qihmh-gnumake-4.4.1.drv",
       "description": "Tool to control the generation of non-source files from sources",
       "install_id": "gnumake",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
       "name": "gnumake-4.4.1",
       "pname": "gnumake",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:35:30.072970Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:45:29.911357Z",
       "stabilities": [
         "unstable"
       ],
@@ -219,10 +219,10 @@
         "out"
       ],
       "outputs": {
-        "debug": "/nix/store/yrfbzz0whhvibv18f2zb6a4l671ryrdk-gnumake-4.4.1-debug",
-        "info": "/nix/store/crfkqwk94z3mvshp5yigwgayxypr7rzr-gnumake-4.4.1-info",
-        "man": "/nix/store/a5lgpaf6b9rm3czp8bv6fw84152rsk08-gnumake-4.4.1-man",
-        "out": "/nix/store/jp96c7glhd39jvym2qxrrqbyjlbn4jg8-gnumake-4.4.1"
+        "debug": "/nix/store/wwhf09gg8ddpl4c6mx70pk3r3a6qx95r-gnumake-4.4.1-debug",
+        "info": "/nix/store/8wcb953rsjvp2ybi7iig6hjls48w87dj-gnumake-4.4.1-info",
+        "man": "/nix/store/f6b4ph7wflz6ylw3lylbiqrr72xs9jw5-gnumake-4.4.1-man",
+        "out": "/nix/store/946sh8bs8hrlrb4jhwxqzllr37zb2q0y-gnumake-4.4.1"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -231,17 +231,17 @@
     {
       "attr_path": "gnumake",
       "broken": false,
-      "derivation": "/nix/store/4843xfb5xlx9nwjm9l74ggkg9df50308-gnumake-4.4.1.drv",
+      "derivation": "/nix/store/mfbgcwvvarvjfjkrj4h83vikzm6sggcl-gnumake-4.4.1.drv",
       "description": "Tool to control the generation of non-source files from sources",
       "install_id": "gnumake",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
       "name": "gnumake-4.4.1",
       "pname": "gnumake",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:54:07.836141Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:04:02.589051Z",
       "stabilities": [
         "unstable"
       ],
@@ -252,9 +252,9 @@
         "out"
       ],
       "outputs": {
-        "info": "/nix/store/sqzsgjrslilvvs25b1rwkxr0vqwgy4n5-gnumake-4.4.1-info",
-        "man": "/nix/store/xk3mk8ilcibjnh3yhakmii8drsxy25p3-gnumake-4.4.1-man",
-        "out": "/nix/store/yfkp7d7jj5m467qrss5p1c26j8pbqmx9-gnumake-4.4.1"
+        "info": "/nix/store/14vf2zb0z70c67k2nzyqaz8b9rfjy73r-gnumake-4.4.1-info",
+        "man": "/nix/store/22x6iviphcn6zlbvhihbvws00iavf9aj-gnumake-4.4.1-man",
+        "out": "/nix/store/1fd85ai3984ah9cy31c7m1fn6i2mm66s-gnumake-4.4.1"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -263,17 +263,17 @@
     {
       "attr_path": "gnumake",
       "broken": false,
-      "derivation": "/nix/store/r2xhnjg5n3mnly8b7l91jjfza4qdrsjh-gnumake-4.4.1.drv",
+      "derivation": "/nix/store/yhc71a2s1xkzgv9x20nyyrc5c9z9nc14-gnumake-4.4.1.drv",
       "description": "Tool to control the generation of non-source files from sources",
       "install_id": "gnumake",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
       "name": "gnumake-4.4.1",
       "pname": "gnumake",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T02:16:17.012747Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:26:12.521089Z",
       "stabilities": [
         "unstable"
       ],
@@ -284,10 +284,10 @@
         "out"
       ],
       "outputs": {
-        "debug": "/nix/store/40rj5d3igp9fb80r4pg3gnkzj338rffa-gnumake-4.4.1-debug",
-        "info": "/nix/store/33lvx5blf6ms1b6ynaln49hx1xksypxf-gnumake-4.4.1-info",
-        "man": "/nix/store/y87b22iwv64wrfpgyii4gjgbhcfqq0mi-gnumake-4.4.1-man",
-        "out": "/nix/store/k0hhyz6qnj5065vpw15m4r7nbs0mn706-gnumake-4.4.1"
+        "debug": "/nix/store/c59bxh8h9rnpp3l7y8i8zirpvp703z8w-gnumake-4.4.1-debug",
+        "info": "/nix/store/xqygkvkp7cghyk66aivysnr88q24dsms-gnumake-4.4.1-info",
+        "man": "/nix/store/5g01b5r1dbk91kwy4jld5vc1asy0mir4-gnumake-4.4.1-man",
+        "out": "/nix/store/p7z72c2s722pbw31jmm3y0nwypksb5fj-gnumake-4.4.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -296,27 +296,27 @@
     {
       "attr_path": "go",
       "broken": false,
-      "derivation": "/nix/store/2r15swr64lijifk39p1s8pz1qdzz61av-go-1.24.1.drv",
+      "derivation": "/nix/store/329sscyxvzdgfyykds76dwnlmxrpbf65-go-1.24.3.drv",
       "description": "Go Programming language",
       "install_id": "go",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "go-1.24.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "go-1.24.3",
       "pname": "go",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:14:38.527299Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:25:06.833652Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "1.24.1",
+      "version": "1.24.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/jp3z5jp9gaxsw7fdzbqn29aabmrxq62j-go-1.24.1"
+        "out": "/nix/store/ps3admpzmc1ryvn9q7sw5xfd94dkrb3f-go-1.24.3"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -325,27 +325,27 @@
     {
       "attr_path": "go",
       "broken": false,
-      "derivation": "/nix/store/5v1ki81a8s0l7vw6yc055m92s9zdjf2m-go-1.24.1.drv",
+      "derivation": "/nix/store/isgn9dhrlr1mix3swwr5h3aws839bafc-go-1.24.3.drv",
       "description": "Go Programming language",
       "install_id": "go",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "go-1.24.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "go-1.24.3",
       "pname": "go",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:35:30.083508Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:45:29.922102Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "1.24.1",
+      "version": "1.24.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/6zvrmsmdg7p8yw3vii20g40b4zsh6kjr-go-1.24.1"
+        "out": "/nix/store/45bnqhyyq40p91k3cjw0farx3hn1swx6-go-1.24.3"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -354,27 +354,27 @@
     {
       "attr_path": "go",
       "broken": false,
-      "derivation": "/nix/store/i6245g4awlsf4v1sgpfrd2x62lnsvf3r-go-1.24.1.drv",
+      "derivation": "/nix/store/s39q71psw02ryk7h3aa76li6bagp6h1q-go-1.24.3.drv",
       "description": "Go Programming language",
       "install_id": "go",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "go-1.24.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "go-1.24.3",
       "pname": "go",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:54:07.842525Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:04:02.595839Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "1.24.1",
+      "version": "1.24.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/2bcic1xcha2k11djynr488v3pg0nnghr-go-1.24.1"
+        "out": "/nix/store/9z2kb6hxij7pqi0fgcn9ijhpb7ajpazs-go-1.24.3"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -383,27 +383,27 @@
     {
       "attr_path": "go",
       "broken": false,
-      "derivation": "/nix/store/1ijki6qajaj2p58jmrq78pbs8vq3y078-go-1.24.1.drv",
+      "derivation": "/nix/store/8bavsrkczap815c77n4xyvzz4y7rx0r0-go-1.24.3.drv",
       "description": "Go Programming language",
       "install_id": "go",
       "license": "BSD-3-Clause",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "go-1.24.1",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "go-1.24.3",
       "pname": "go",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T02:16:17.023863Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:26:12.532473Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "1.24.1",
+      "version": "1.24.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/g29rrn8qqlg4yjqv543ryrkimr7fk43h-go-1.24.1"
+        "out": "/nix/store/5xvi25nqmbrg58aixp4zgczilfnp7pwg-go-1.24.3"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -412,27 +412,27 @@
     {
       "attr_path": "nats-server",
       "broken": false,
-      "derivation": "/nix/store/m3qcwr83gy1sc398l12dr5gmig9jif15-nats-server-2.11.0.drv",
+      "derivation": "/nix/store/7nn8bpgwjyq6fd3fhgk68d8fkx2saxa5-nats-server-2.11.3.drv",
       "description": "High-Performance server for NATS",
       "install_id": "nats-server",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "nats-server-2.11.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "nats-server-2.11.3",
       "pname": "nats-server",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:14:40.622911Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:25:09.048290Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "2.11.0",
+      "version": "2.11.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/7jl4imbxhqnbzznx2wf41gxgq8p46991-nats-server-2.11.0"
+        "out": "/nix/store/wnxyhr3pl05q4bdkx6a7bccidvn1zml9-nats-server-2.11.3"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -441,27 +441,27 @@
     {
       "attr_path": "nats-server",
       "broken": false,
-      "derivation": "/nix/store/2kqh5kcr0xgpksm3z3gizqmjhhimxg4a-nats-server-2.11.0.drv",
+      "derivation": "/nix/store/95vdd5m5lz4mjbg3c7kjdfai79h0ix7q-nats-server-2.11.3.drv",
       "description": "High-Performance server for NATS",
       "install_id": "nats-server",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "nats-server-2.11.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "nats-server-2.11.3",
       "pname": "nats-server",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:35:38.536970Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:45:38.930762Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "2.11.0",
+      "version": "2.11.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/iynr57ipd5d2bn1bkqll275y21p261wr-nats-server-2.11.0"
+        "out": "/nix/store/dx5l0blzi5f1xl33ls1zvs5rki69wlak-nats-server-2.11.3"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -470,27 +470,27 @@
     {
       "attr_path": "nats-server",
       "broken": false,
-      "derivation": "/nix/store/k8hdg0sh4v2cpang4r1gmw3vpmrhgyws-nats-server-2.11.0.drv",
+      "derivation": "/nix/store/2951vfygryqwgr9pimq5xlys3xiwbbs1-nats-server-2.11.3.drv",
       "description": "High-Performance server for NATS",
       "install_id": "nats-server",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "nats-server-2.11.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "nats-server-2.11.3",
       "pname": "nats-server",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:54:09.974239Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:04:04.930352Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "2.11.0",
+      "version": "2.11.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/9giy01axp8b5fb923sv45h5ysvj6dlbh-nats-server-2.11.0"
+        "out": "/nix/store/bsygij7402ib86fma0p01pjizdq3qq09-nats-server-2.11.3"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -499,27 +499,27 @@
     {
       "attr_path": "nats-server",
       "broken": false,
-      "derivation": "/nix/store/ddc2873lx17640wk22fv5wbr4z0z0d6j-nats-server-2.11.0.drv",
+      "derivation": "/nix/store/b8q18bc3fy4dzxvz21j2jwsblhl3s6kr-nats-server-2.11.3.drv",
       "description": "High-Performance server for NATS",
       "install_id": "nats-server",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "nats-server-2.11.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "nats-server-2.11.3",
       "pname": "nats-server",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T02:16:27.091893Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:26:23.355978Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "2.11.0",
+      "version": "2.11.3",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/8r4v90m1kjivpcm22hnhn088xl6g9c0w-nats-server-2.11.0"
+        "out": "/nix/store/branhrkipk6gn2q3j178nk2iqiarysig-nats-server-2.11.3"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -528,27 +528,27 @@
     {
       "attr_path": "natscli",
       "broken": false,
-      "derivation": "/nix/store/qxa388pq1n8p3sgjkmk7nxs5cxknjv88-natscli-0.2.0.drv",
+      "derivation": "/nix/store/3dhkdpcc7bw58rvmqdw9lp24zdv56dfh-natscli-0.2.2.drv",
       "description": "NATS Command Line Interface",
       "install_id": "natscli",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "natscli-0.2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "natscli-0.2.2",
       "pname": "natscli",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:14:40.624175Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:25:09.049603Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "0.2.0",
+      "version": "0.2.2",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/b5wlmpcgkcid9glf5jmj0cm17fxr05dl-natscli-0.2.0"
+        "out": "/nix/store/dr6rhvkfxnxga2k1dcfjqs2zkf8gd1x3-natscli-0.2.2"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -557,27 +557,27 @@
     {
       "attr_path": "natscli",
       "broken": false,
-      "derivation": "/nix/store/02m65yb7i87xj7mr472b9rmw8j4g3v2k-natscli-0.2.0.drv",
+      "derivation": "/nix/store/b9yrjqng2nr44w0y88bimfiail12v2bi-natscli-0.2.2.drv",
       "description": "NATS Command Line Interface",
       "install_id": "natscli",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "natscli-0.2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "natscli-0.2.2",
       "pname": "natscli",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:35:38.539330Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T04:45:38.933189Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "0.2.0",
+      "version": "0.2.2",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/rrx8z94vxbg1za0w7wqzdh14n93grk5i-natscli-0.2.0"
+        "out": "/nix/store/fiirkrjmmx8rk7l5yn1bi0zjz779576z-natscli-0.2.2"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -586,27 +586,27 @@
     {
       "attr_path": "natscli",
       "broken": false,
-      "derivation": "/nix/store/699qqd0sc13mfl7g13cndh5phmz6ddyh-natscli-0.2.0.drv",
+      "derivation": "/nix/store/czmybry6jkhpacjapbgqc78hgk4l3lwa-natscli-0.2.2.drv",
       "description": "NATS Command Line Interface",
       "install_id": "natscli",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "natscli-0.2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "natscli-0.2.2",
       "pname": "natscli",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T01:54:09.975534Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:04:04.931720Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "0.2.0",
+      "version": "0.2.2",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/xx0dryzqqpn2db899pj50rcn65x0qdyw-natscli-0.2.0"
+        "out": "/nix/store/yysj8x70cyll52w8fbd29zrc11rb2k60-natscli-0.2.2"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -615,27 +615,27 @@
     {
       "attr_path": "natscli",
       "broken": false,
-      "derivation": "/nix/store/lldl9ca1386cy39pwas33h4fy9xjgi8g-natscli-0.2.0.drv",
+      "derivation": "/nix/store/c219k3ljzb4p1fqppkps5ql7zsxipd33-natscli-0.2.2.drv",
       "description": "NATS Command Line Interface",
       "install_id": "natscli",
       "license": "Apache-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "name": "natscli-0.2.0",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "name": "natscli-0.2.2",
       "pname": "natscli",
-      "rev": "063dece00c5a77e4a0ea24e5e5a5bd75232806f8",
-      "rev_count": 780010,
-      "rev_date": "2025-04-06T18:34:07Z",
-      "scrape_date": "2025-04-08T02:16:27.094439Z",
+      "rev": "910796cabe436259a29a72e8d3f5e180fc6dfacc",
+      "rev_count": 808478,
+      "rev_date": "2025-05-31T12:05:15Z",
+      "scrape_date": "2025-06-02T05:26:23.358643Z",
       "stabilities": [
         "unstable"
       ],
       "unfree": false,
-      "version": "0.2.0",
+      "version": "0.2.2",
       "outputs_to_install": [
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/qaxv1gcambbsc2aq072vjcr4lgxfpxgf-natscli-0.2.0"
+        "out": "/nix/store/7vwhb646sa9zkilr694amqd738y2hfi7-natscli-0.2.2"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
