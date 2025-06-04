@@ -8,7 +8,7 @@ GOARCH ?= $(shell go env GOARCH)
 
 # Build configuration
 GO := go
-GOFLAGS := -v
+GOFLAGS :=
 LDFLAGS := -ldflags "-X main.Version=$(VERSION)"
 
 # Default target
