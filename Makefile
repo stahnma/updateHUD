@@ -98,7 +98,7 @@ iter:
 	go build -o upc client/main.go 
 
 rerun:
-	flox services stop
+	flox services stop || true
 	rm -f server/systems.db
 	$(MAKE) -C client linux
 	$(MAKE) -C server build
