@@ -265,6 +265,7 @@ th:hover {
     padding: 0;
     margin-right: 8px;
     vertical-align: middle;
+    object-fit: contain;
 }
 
 .os-text {

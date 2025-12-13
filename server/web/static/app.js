@@ -172,37 +172,42 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // macOS
         if (osLower.includes('darwin') || osLower.includes('macos') || osLower.includes('mac os')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><path fill="#000" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>';
+            return '<img class="os-icon" src="/static/images/macos-30.png" alt="macOS" width="20" height="20">';
         }
         
-        // Debian - red swirl logo
+        // Debian
         if (osLower.includes('debian')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#A80030" cx="12" cy="12" r="12"/><path fill="#fff" d="M12 4c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8zm0 1.5c-3.6 0-6.5 2.9-6.5 6.5s2.9 6.5 6.5 6.5 6.5-2.9 6.5-6.5S15.6 5.5 12 5.5zm0 1c3 0 5.5 2.5 5.5 5.5S15 17.5 12 17.5 6.5 15 6.5 12 9 6.5 12 6.5z"/></svg>';
+            return '<img class="os-icon" src="/static/images/debian-48.png" alt="Debian" width="20" height="20">';
         }
         
-        // Ubuntu - orange circle with white inner circles
-        if (osLower.includes('ubuntu')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#E95420" cx="12" cy="12" r="12"/><circle fill="#fff" cx="12" cy="12" r="7.5" opacity="0.9"/><circle fill="#E95420" cx="12" cy="12" r="4.5"/></svg>';
+        // Fedora
+        if (osLower.includes('fedora')) {
+            return '<img class="os-icon" src="/static/images/fedora-48.png" alt="Fedora" width="20" height="20">';
         }
         
-        // SUSE / openSUSE - green gecko/chameleon
-        if (osLower.includes('suse') || osLower.includes('opensuse')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#73BA25" cx="12" cy="12" r="12"/><path fill="#fff" d="M12 5c3.9 0 7 3.1 7 7s-3.1 7-7 7-7-3.1-7-7 3.1-7 7-7zm0 1.5c-3 0-5.5 2.5-5.5 5.5S9 17.5 12 17.5 17.5 15 17.5 12 15 6.5 12 6.5zm0 1c2.5 0 4.5 2 4.5 4.5S14.5 16.5 12 16.5 7.5 14.5 7.5 12 9.5 7.5 12 7.5z"/></svg>';
-        }
-        
-        // Red Hat / RHEL - red hat shadowman
+        // Red Hat / RHEL
         if (osLower.includes('red hat') || osLower.includes('rhel') || osLower.includes('redhat')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#EE0000" cx="12" cy="12" r="12"/><path fill="#fff" d="M12 5c3.9 0 7 3.1 7 7s-3.1 7-7 7-7-3.1-7-7 3.1-7 7-7zm0 1.5c-3 0-5.5 2.5-5.5 5.5S9 17.5 12 17.5 17.5 15 17.5 12 15 6.5 12 6.5zm0 1c2.5 0 4.5 2 4.5 4.5S14.5 16.5 12 16.5 7.5 14.5 7.5 12 9.5 7.5 12 7.5z"/></svg>';
+            return '<img class="os-icon" src="/static/images/red-hat-48.png" alt="Red Hat" width="20" height="20">';
         }
         
-        // Rocky Linux - blue-green mountain
+        // Ubuntu - use generic Linux icon
+        if (osLower.includes('ubuntu')) {
+            return '<img class="os-icon" src="/static/images/linux-48.png" alt="Ubuntu" width="20" height="20">';
+        }
+        
+        // SUSE / openSUSE - use generic Linux icon
+        if (osLower.includes('suse') || osLower.includes('opensuse')) {
+            return '<img class="os-icon" src="/static/images/linux-48.png" alt="SUSE" width="20" height="20">';
+        }
+        
+        // Rocky Linux - use generic Linux icon
         if (osLower.includes('rocky')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#10B981" cx="12" cy="12" r="12"/><path fill="#fff" d="M12 5c3.9 0 7 3.1 7 7s-3.1 7-7 7-7-3.1-7-7 3.1-7 7-7zm0 1.5c-3 0-5.5 2.5-5.5 5.5S9 17.5 12 17.5 17.5 15 17.5 12 15 6.5 12 6.5zm0 1c2.5 0 4.5 2 4.5 4.5S14.5 16.5 12 16.5 7.5 14.5 7.5 12 9.5 7.5 12 7.5z"/></svg>';
+            return '<img class="os-icon" src="/static/images/linux-48.png" alt="Rocky Linux" width="20" height="20">';
         }
         
-        // Generic Linux fallback - Tux penguin simplified
-        if (osLower.includes('linux')) {
-            return '<svg class="os-icon" viewBox="0 0 24 24" width="20" height="20"><circle fill="#000" cx="12" cy="12" r="12"/><circle fill="#fff" cx="12" cy="12" r="9"/><circle fill="#000" cx="10" cy="10" r="1.5"/><circle fill="#000" cx="14" cy="10" r="1.5"/><ellipse fill="#000" cx="12" cy="13" rx="2" ry="1.5"/></svg>';
+        // Generic Linux fallback - use Linux icon
+        if (osLower.includes('linux') || osLower.includes('armbian')) {
+            return '<img class="os-icon" src="/static/images/linux-48.png" alt="Linux" width="20" height="20">';
         }
         
         // Default/unknown OS
