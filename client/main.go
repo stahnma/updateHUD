@@ -154,38 +154,75 @@ func sendSystemUpdate(nc *nats.Conn) {
 	defer cancel()
 
 	// Try to publish with timeout
+	// Use buffered channel and ensure goroutine always completes to prevent leaks
 	publishChan := make(chan error, 1)
 	go func() {
+		// Check if context is already cancelled before publishing
+		select {
+		case <-ctx.Done():
+			publishChan <- ctx.Err()
+			return
+		default:
+		}
 		publishChan <- nc.Publish(subject, data)
 	}()
 
 	select {
 	case err := <-publishChan:
 		if err != nil {
-			log.Printf("[ERROR] Failed to publish message to NATS: %v", err)
+			if err == ctx.Err() {
+				log.Printf("[ERROR] Publish cancelled due to timeout")
+			} else {
+				log.Printf("[ERROR] Failed to publish message to NATS: %v", err)
+			}
 			return
 		}
 		log.Printf("[INFO] Successfully published to subject: %s", subject)
 
-		// Try to flush with timeout
+		// Try to flush with timeout using context
+		flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer flushCancel()
+
 		flushChan := make(chan error, 1)
 		go func() {
+			// Check if context is already cancelled before flushing
+			select {
+			case <-flushCtx.Done():
+				flushChan <- flushCtx.Err()
+				return
+			default:
+			}
 			flushChan <- nc.Flush()
 		}()
 
 		select {
 		case err := <-flushChan:
 			if err != nil {
-				log.Printf("[ERROR] Failed to flush NATS connection: %v", err)
+				if err == flushCtx.Err() {
+					log.Printf("[ERROR] Flush timeout after 5 seconds")
+				} else {
+					log.Printf("[ERROR] Failed to flush NATS connection: %v", err)
+				}
 			} else {
 				debugLog("Successfully flushed NATS connection")
 			}
-		case <-time.After(5 * time.Second):
+		case <-flushCtx.Done():
 			log.Printf("[ERROR] Flush timeout after 5 seconds")
+			// Drain the channel in a non-blocking way to prevent goroutine leak
+			select {
+			case <-flushChan:
+			default:
+			}
 		}
 
 	case <-ctx.Done():
 		log.Printf("[ERROR] Publish timeout after 10 seconds")
+		// Drain the channel in a non-blocking way to prevent goroutine leak
+		// The goroutine will complete when nc.Publish() returns, but we don't wait
+		select {
+		case <-publishChan:
+		default:
+		}
 	}
 
 	debugLog("---- End NATS Publishing Details ----")
@@ -228,7 +265,7 @@ func main() {
 		nats.Timeout(30*time.Second),      // Increased timeout
 		nats.PingInterval(20*time.Second), // Add periodic ping
 		nats.MaxPingsOutstanding(5),       // Allow 5 outstanding pings
-		nats.RetryOnFailedConnect(false),  // Don't return until connection is established
+		nats.RetryOnFailedConnect(true),   // Enable automatic retry on initial connection failure
 		nats.MaxReconnects(-1),            // Unlimited reconnections
 		nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 		nats.ReconnectHandler(func(nc *nats.Conn) {
