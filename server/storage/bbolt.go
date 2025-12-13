@@ -100,8 +100,10 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 		return bucket.ForEach(func(k, v []byte) error {
 			var system models.System
 			if err := json.Unmarshal(v, &system); err != nil {
-				log.Printf("[ERROR] Failed to unmarshal system data for key %s: %v", k, err)
-				return err
+				log.Printf("[ERROR] Failed to unmarshal system data for key %s: %v, skipping", k, err)
+				// Continue iteration by returning nil instead of error
+				// This allows other valid records to be loaded even if one is corrupted
+				return nil
 			}
 			systems = append(systems, system)
 			return nil

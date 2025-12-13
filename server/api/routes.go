@@ -1,9 +1,11 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
+	"server/models"
 	"server/storage"
 	"strings"
 
@@ -11,16 +13,17 @@ import (
 )
 
 type SystemSummary struct {
-	Hostname         string `json:"hostname"`
-	Architecture     string `json:"architecture"`
-	Ip               string `json:"ip"`
-	OS               string `json:"os"`
-	OSVersion        string `json:"os_version"`
-	UpdatesAvailable bool   `json:"updates_available"`
-	LastSeen         string `json:"last_seen"`
+	Hostname         string          `json:"hostname"`
+	Architecture     string          `json:"architecture"`
+	Ip               string          `json:"ip"`
+	OS               string          `json:"os"`
+	OSVersion        string          `json:"os_version"`
+	UpdatesAvailable bool            `json:"updates_available"`
+	LastSeen         string          `json:"last_seen"`
+	PendingUpdates   []models.Update `json:"pending_updates"`
 }
 
-// GetSystemsHandler returns a JSON list of systems without pending updates details
+// GetSystemsHandler returns a JSON list of systems with pending updates details
 func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Retrieve all systems from storage
@@ -42,14 +45,22 @@ func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 				OSVersion:        system.OSVersion,
 				UpdatesAvailable: system.UpdatesAvailable,
 				LastSeen:         system.LastSeen,
+				PendingUpdates:   system.PendingUpdates,
 			})
 		}
 
-		// Respond with JSON
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(summaries); err != nil {
+		// Encode to buffer first to check for errors before writing headers
+		var buf bytes.Buffer
+		if err := json.NewEncoder(&buf).Encode(summaries); err != nil {
 			log.Printf("[ERROR] Failed to encode systems summary: %v", err)
 			http.Error(w, "Failed to encode systems summary", http.StatusInternalServerError)
+			return
+		}
+
+		// Headers can now be safely set since encoding succeeded
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write(buf.Bytes()); err != nil {
+			log.Printf("[ERROR] Failed to write response: %v", err)
 		}
 	}
 }
@@ -69,11 +80,18 @@ func GetSystemHandler(store storage.Storage) http.HandlerFunc {
 			return
 		}
 
-		// Respond with JSON
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(system); err != nil {
+		// Encode to buffer first to check for errors before writing headers
+		var buf bytes.Buffer
+		if err := json.NewEncoder(&buf).Encode(system); err != nil {
 			log.Printf("[ERROR] Failed to encode system details: %v", err)
 			http.Error(w, "Failed to encode system details", http.StatusInternalServerError)
+			return
+		}
+
+		// Headers can now be safely set since encoding succeeded
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write(buf.Bytes()); err != nil {
+			log.Printf("[ERROR] Failed to write response: %v", err)
 		}
 	}
 }

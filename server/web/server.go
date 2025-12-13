@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"embed"
 	"io/fs"
 	"log"
@@ -28,43 +29,79 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// wsConn wraps a WebSocket connection with a mutex to serialize writes
+type wsConn struct {
+	conn *websocket.Conn
+	mu   sync.Mutex
+}
+
+// writeJSON safely writes JSON to the connection with mutex protection
+func (w *wsConn) writeJSON(v interface{}) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.conn.WriteJSON(v)
+}
+
+// writeControl safely writes control messages to the connection with mutex protection
+func (w *wsConn) writeControl(messageType int, data []byte, deadline time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.conn.WriteControl(messageType, data, deadline)
+}
+
+// close safely closes the connection with mutex protection
+func (w *wsConn) close() error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.conn.Close()
+}
+
 // WebSocket connection manager
 type wsConnectionManager struct {
 	sync.RWMutex
-	connections map[*websocket.Conn]bool
+	connections map[*wsConn]bool
 }
 
 func newWSConnectionManager() *wsConnectionManager {
 	return &wsConnectionManager{
-		connections: make(map[*websocket.Conn]bool),
+		connections: make(map[*wsConn]bool),
 	}
 }
 
-func (m *wsConnectionManager) add(conn *websocket.Conn) {
+func (m *wsConnectionManager) add(conn *websocket.Conn) *wsConn {
 	m.Lock()
-	m.connections[conn] = true
-	m.Unlock()
+	defer m.Unlock()
+	wrapped := &wsConn{conn: conn}
+	m.connections[wrapped] = true
+	return wrapped
 }
 
-func (m *wsConnectionManager) remove(conn *websocket.Conn) {
+func (m *wsConnectionManager) remove(wrapped *wsConn) {
 	m.Lock()
-	delete(m.connections, conn)
-	m.Unlock()
+	defer m.Unlock()
+	delete(m.connections, wrapped)
 }
 
 func (m *wsConnectionManager) broadcast(update interface{}) {
+	// Create a snapshot of connections while holding the read lock
 	m.RLock()
-	defer m.RUnlock()
-
+	conns := make([]*wsConn, 0, len(m.connections))
 	for conn := range m.connections {
+		conns = append(conns, conn)
+	}
+	m.RUnlock()
+
+	// Now iterate over the snapshot without holding any lock
+	// This allows goroutines to safely call remove() which acquires a write lock
+	for _, wrapped := range conns {
 		// Write in a non-blocking goroutine
-		go func(c *websocket.Conn) {
-			if err := c.WriteJSON(update); err != nil {
+		go func(c *wsConn) {
+			if err := c.writeJSON(update); err != nil {
 				log.Printf("[DEBUG] Failed to send WebSocket message to client: %v", err)
-				c.Close()
+				c.close()
 				m.remove(c)
 			}
-		}(conn)
+		}(wrapped)
 	}
 }
 
@@ -112,8 +149,12 @@ func StartWebServer(store storage.Storage, port string) {
 			return nil
 		})
 
-		// Add connection to manager
-		connManager.add(conn)
+		// Add connection to manager and get wrapped connection
+		wrappedConn := connManager.add(conn)
+
+		// Create a context for the ping ticker to allow graceful shutdown
+		pingCtx, pingCancel := context.WithCancel(context.Background())
+		defer pingCancel()
 
 		// Start ping ticker
 		go func() {
@@ -122,8 +163,12 @@ func StartWebServer(store storage.Storage, port string) {
 
 			for {
 				select {
+				case <-pingCtx.Done():
+					// Connection closed, stop the ticker
+					return
 				case <-ticker.C:
-					if err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
+					// Use wrapped connection's writeControl which is thread-safe
+					if err := wrappedConn.writeControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
 						log.Printf("[DEBUG] Failed to send ping to client: %v", err)
 						return
 					}
@@ -133,8 +178,9 @@ func StartWebServer(store storage.Storage, port string) {
 
 		// Cleanup on exit
 		defer func() {
-			connManager.remove(conn)
-			conn.Close()
+			pingCancel() // Signal ping ticker to stop
+			connManager.remove(wrappedConn)
+			wrappedConn.close()
 		}()
 
 		// Keep connection alive and handle incoming messages
@@ -147,7 +193,8 @@ func StartWebServer(store storage.Storage, port string) {
 				break
 			}
 			if messageType == websocket.PingMessage {
-				if err := conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
+				// Use wrapped connection's writeControl which is thread-safe
+				if err := wrappedConn.writeControl(websocket.PongMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
 					log.Printf("[DEBUG] Failed to send pong to client: %v", err)
 					break
 				}
@@ -163,5 +210,7 @@ func StartWebServer(store storage.Storage, port string) {
 	}()
 
 	log.Printf("[INFO] Web server starting on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		log.Printf("[ERROR] Web server failed: %v", err)
+	}
 }
