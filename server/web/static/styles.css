@@ -38,6 +38,9 @@ th, td {
     padding: 10px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    vertical-align: top;
+    line-height: 1.5;
+    box-sizing: border-box;
 }
 
 th {
@@ -247,5 +250,26 @@ th:hover {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.8; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+/* OS icon styling */
+.os-cell {
+    white-space: nowrap;
+}
+
+.os-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.os-text {
+    display: inline-block;
+    line-height: 1.5;
+    vertical-align: middle;
 }
 
