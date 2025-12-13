@@ -228,7 +228,7 @@ func main() {
 		nats.Timeout(30*time.Second),      // Increased timeout
 		nats.PingInterval(20*time.Second), // Add periodic ping
 		nats.MaxPingsOutstanding(5),       // Allow 5 outstanding pings
-		nats.RetryOnFailedConnect(true),
+		nats.RetryOnFailedConnect(false),  // Don't return until connection is established
 		nats.MaxReconnects(-1),            // Unlimited reconnections
 		nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 		nats.ReconnectHandler(func(nc *nats.Conn) {
@@ -253,17 +253,23 @@ func main() {
 		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
 	}
 	defer nc.Close()
+
+	// Verify connection is actually ready by flushing
+	// This ensures the connection handshake is complete
+	if err := nc.FlushTimeout(5 * time.Second); err != nil {
+		log.Fatalf("[ERROR] Connection established but flush failed (connection not ready): %v", err)
+	}
+
 	log.Printf("[INFO] Successfully connected to NATS at %s", nc.ConnectedUrl())
 	debugLog("Server ID: %s", nc.ConnectedServerId())
 
 	// Function to check NATS connection health
 	checkConnection := func() bool {
 		if !nc.IsConnected() {
+			// Log additional diagnostic info
+			debugLog("Connection check failed - IsConnected: %v, LastError: %v, ConnectedUrl: %v",
+				nc.IsConnected(), nc.LastError(), nc.ConnectedUrl())
 			log.Printf("[WARN] NATS connection is not active")
-			return false
-		}
-		if err := nc.Flush(); err != nil {
-			log.Printf("[WARN] NATS connection health check failed: %v", err)
 			return false
 		}
 		return true
