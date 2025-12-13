@@ -2,7 +2,10 @@ module github.com/stahnma/mqttfun/client
 
 go 1.23.4
 
-require github.com/nats-io/nats.go v1.38.0
+require (
+	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/nats-io/nats.go v1.38.0
+)
 
 require (
 	github.com/klauspost/compress v1.17.9 // indirect

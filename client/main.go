@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/nats-io/nats.go"
 	"github.com/stahnma/mqttfun/client/updates"
 )
@@ -259,43 +260,69 @@ func main() {
 		natsURL = fmt.Sprintf("nats://%s:4222", serverIP)
 	}
 
-	log.Printf("[INFO] Connecting to NATS at %s...", natsURL)
-	nc, err := nats.Connect(natsURL,
-		nats.Name("System Updates Publisher"),
-		nats.Timeout(30*time.Second),      // Increased timeout
-		nats.PingInterval(20*time.Second), // Add periodic ping
-		nats.MaxPingsOutstanding(5),       // Allow 5 outstanding pings
-		nats.RetryOnFailedConnect(true),   // Enable automatic retry on initial connection failure
-		nats.MaxReconnects(-1),            // Unlimited reconnections
-		nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
-		nats.ReconnectHandler(func(nc *nats.Conn) {
-			log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
-			debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
-				nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
-		}),
-		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
-			if err != nil {
-				log.Printf("[ERROR] Disconnected from NATS due to error: %v", err)
-			} else {
-				log.Printf("[INFO] Disconnected from NATS")
-			}
-		}),
-		nats.ClosedHandler(func(nc *nats.Conn) {
-			log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
-			debugLog("Final connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
-				nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
-		}),
-	)
+	// Configure exponential backoff: start at 5s, max 10 minutes
+	// Pattern: 5s, 10s, 20s, 40s, 80s, 160s, 320s, 600s (capped)
+	backoffConfig := backoff.NewExponentialBackOff()
+	backoffConfig.InitialInterval = 5 * time.Second
+	backoffConfig.MaxInterval = 10 * time.Minute
+	backoffConfig.Multiplier = 2.0
+	backoffConfig.MaxElapsedTime = 10 * time.Minute
+	backoffConfig.RandomizationFactor = 0
+
+	var nc *nats.Conn
+	connectFunc := func() error {
+		log.Printf("[INFO] Attempting to connect to NATS at %s...", natsURL)
+		var err error
+		nc, err = nats.Connect(natsURL,
+			nats.Name("System Updates Publisher"),
+			nats.Timeout(30*time.Second),      // Increased timeout
+			nats.PingInterval(20*time.Second), // Add periodic ping
+			nats.MaxPingsOutstanding(5),       // Allow 5 outstanding pings
+			nats.RetryOnFailedConnect(true),   // Enable automatic retry on initial connection failure
+			nats.MaxReconnects(-1),            // Unlimited reconnections
+			nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
+			nats.ReconnectHandler(func(nc *nats.Conn) {
+				log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
+				debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
+					nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
+			}),
+			nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+				if err != nil {
+					log.Printf("[ERROR] Disconnected from NATS due to error: %v", err)
+				} else {
+					log.Printf("[INFO] Disconnected from NATS")
+				}
+			}),
+			nats.ClosedHandler(func(nc *nats.Conn) {
+				log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
+				debugLog("Final connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
+					nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
+			}),
+		)
+		if err != nil {
+			return err
+		}
+
+		// Verify connection is actually ready by flushing
+		// This ensures the connection handshake is complete
+		if err := nc.FlushTimeout(5 * time.Second); err != nil {
+			nc.Close()
+			return fmt.Errorf("connection established but flush failed (connection not ready): %w", err)
+		}
+
+		return nil
+	}
+
+	// Retry connection with exponential backoff
+	notifyFunc := func(err error, duration time.Duration) {
+		log.Printf("[WARN] Connection attempt failed: %v. Retrying in %v...", err, duration)
+	}
+
+	err := backoff.RetryNotify(connectFunc, backoffConfig, notifyFunc)
 	if err != nil {
-		log.Fatalf("[ERROR] Failed to connect to NATS: %v", err)
+		log.Fatalf("[ERROR] Failed to connect to NATS after 10 minutes of retrying: %v", err)
 	}
 	defer nc.Close()
-
-	// Verify connection is actually ready by flushing
-	// This ensures the connection handshake is complete
-	if err := nc.FlushTimeout(5 * time.Second); err != nil {
-		log.Fatalf("[ERROR] Connection established but flush failed (connection not ready): %v", err)
-	}
 
 	log.Printf("[INFO] Successfully connected to NATS at %s", nc.ConnectedUrl())
 	debugLog("Server ID: %s", nc.ConnectedServerId())
