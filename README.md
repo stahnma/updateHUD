@@ -125,3 +125,7 @@ Instead of using this tool, you could run a cron job or systemd timer to auto-up
 - You lose visibility and control over when updates are applied
 
 This tool gives you visibility into pending updates across all your systems, allowing you to plan updates appropriately.
+
+## License
+
+This project is licensed under the Apache License. See the [LICENSE](LICENSE) file for details.
