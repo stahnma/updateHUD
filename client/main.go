@@ -252,11 +252,11 @@ func getIPAddress() (string, error) {
 
 func main() {
 	// NATS server URL - configurable via environment variable
-	// If not set, try to get server IP from NATS_SERVER_IP, or default to localhost
+	// If not set, try to get server IP from NATS_SERVER_IP, or default to 192.168.1.157
 	natsURL := getEnv("NATS_URL", "")
 	if natsURL == "" {
-		// Try to get server IP from environment or use localhost
-		serverIP := getEnv("NATS_SERVER_IP", "localhost")
+		// Try to get server IP from environment or use 192.168.1.157
+		serverIP := getEnv("NATS_SERVER_IP", "192.168.1.157")
 		natsURL = fmt.Sprintf("nats://%s:4222", serverIP)
 	}
 
