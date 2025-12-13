@@ -13,8 +13,11 @@ import (
 
 type BboltStorage struct {
 	sync.Mutex
-	db      *bolt.DB
-	updates chan models.System
+	db        *bolt.DB
+	updates   chan models.System
+	closed    bool
+	closedMux sync.RWMutex
+	closeOnce sync.Once
 }
 
 func NewBboltStorage(dbPath string) (*BboltStorage, error) {
@@ -50,11 +53,27 @@ func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 		return err
 	}
 
-	// Send update to the updates channel
-	select {
-	case s.updates <- system:
-	default:
-		log.Printf("[WARNING] Updates channel is full; dropping update for %s", hostname)
+	// Send update to the updates channel (only if not closed)
+	// Use recover to handle race condition where channel closes between check and send
+	s.closedMux.RLock()
+	isClosed := s.closed
+	s.closedMux.RUnlock()
+
+	if !isClosed {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					// Channel was closed between check and send - ignore silently
+					// This is expected during shutdown
+					log.Printf("[DEBUG] Dropped update for %s due to channel closure", hostname)
+				}
+			}()
+			select {
+			case s.updates <- system:
+			default:
+				log.Printf("[WARNING] Updates channel is full; dropping update for %s", hostname)
+			}
+		}()
 	}
 
 	return nil
@@ -122,6 +141,11 @@ func (s *BboltStorage) SubscribeToUpdates() <-chan models.System {
 }
 
 func (s *BboltStorage) Close() error {
-	close(s.updates)
+	s.closeOnce.Do(func() {
+		s.closedMux.Lock()
+		s.closed = true
+		close(s.updates)
+		s.closedMux.Unlock()
+	})
 	return s.db.Close()
 }
