@@ -1,6 +1,8 @@
 package web
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"server/api"
@@ -11,6 +13,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
+
+//go:embed templates/*
+var templateFiles embed.FS
+
+//go:embed static/*
+var staticFiles embed.FS
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -64,16 +72,28 @@ func StartWebServer(store storage.Storage, port string) {
 	r := mux.NewRouter()
 	connManager := newWSConnectionManager()
 
-	// Serve static files (JS, CSS)
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+	// Serve static files (JS, CSS) from embedded filesystem
+	// The embedded FS includes the "static/" prefix, so we need to use a subdirectory
+	staticFS, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatalf("[ERROR] Failed to create static files subdirectory: %v", err)
+	}
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
 	// API routes
 	r.HandleFunc("/api/systems", api.GetSystemsHandler(store)).Methods("GET")
 	r.HandleFunc("/api/systems/{hostname}", api.GetSystemHandler(store)).Methods("GET")
 
-	// Serve the main page
+	// Serve the main page from embedded filesystem
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/templates/index.html")
+		data, err := templateFiles.ReadFile("templates/index.html")
+		if err != nil {
+			log.Printf("[ERROR] Failed to read index.html: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write(data)
 	})
 
 	// WebSocket endpoint

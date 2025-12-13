@@ -32,6 +32,14 @@ func debugLog(format string, v ...interface{}) {
 	}
 }
 
+// getEnv gets an environment variable or returns a default value
+func getEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}
+
 type System struct {
 	Hostname         string           `json:"hostname"`
 	Architecture     string           `json:"architecture"`
@@ -205,10 +213,16 @@ func getIPAddress() (string, error) {
 }
 
 func main() {
-	// NATS server URL with authentication
-	natsURL := "nats://admin:password@192.168.1.167:4222"
+	// NATS server URL - configurable via environment variable
+	// If not set, try to get server IP from NATS_SERVER_IP, or default to localhost
+	natsURL := getEnv("NATS_URL", "")
+	if natsURL == "" {
+		// Try to get server IP from environment or use localhost
+		serverIP := getEnv("NATS_SERVER_IP", "localhost")
+		natsURL = fmt.Sprintf("nats://%s:4222", serverIP)
+	}
 
-	log.Printf("[DEBUG] Connecting to NATS at %s...", natsURL)
+	log.Printf("[INFO] Connecting to NATS at %s...", natsURL)
 	nc, err := nats.Connect(natsURL,
 		nats.Name("System Updates Publisher"),
 		nats.Timeout(30*time.Second),      // Increased timeout

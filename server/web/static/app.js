@@ -187,10 +187,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${system.architecture}</td>
                         <td>${system.ip}</td>
                         <td>${system.updates_available ?
-                            `<span class="update-badge update-available priority-${getUpdatePriority(system.pending_updates)}"
-                                   title="Updates available: ${system.pending_updates ? system.pending_updates.map(u => u.name).join(', ') : 'Click for details'}">
-                                Updates (${system.pending_updates ? system.pending_updates.length : '?'})
-                                ${getUpdatePriority(system.pending_updates) === 'high' ? ' ⚠️' : ''}
+                            `<span class="update-badge update-available${system.pending_updates ? ' priority-' + getUpdatePriority(system.pending_updates) : ''}"
+                                   title="Updates available${system.pending_updates ? ': ' + system.pending_updates.map(u => u.name).join(', ') : ' - Click for details'}">
+                                Updates${system.pending_updates ? ` (${system.pending_updates.length})` : ' (click for details)'}
+                                ${system.pending_updates && getUpdatePriority(system.pending_updates) === 'high' ? ' ⚠️' : ''}
                             </span>` :
                             `<span class="update-badge up-to-date">Up to date</span>`
                         }</td>
