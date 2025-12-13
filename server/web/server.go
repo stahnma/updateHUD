@@ -29,7 +29,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// wsConn wraps a WebSocket connection with a mutex to serialize writes
+// wsConn wraps a WebSocket connection with a mutex to serialize reads and writes
 type wsConn struct {
 	conn *websocket.Conn
 	mu   sync.Mutex
@@ -47,6 +47,13 @@ func (w *wsConn) writeControl(messageType int, data []byte, deadline time.Time) 
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.conn.WriteControl(messageType, data, deadline)
+}
+
+// readMessage safely reads messages from the connection with mutex protection
+func (w *wsConn) readMessage() (messageType int, p []byte, err error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.conn.ReadMessage()
 }
 
 // close safely closes the connection with mutex protection
@@ -185,7 +192,8 @@ func StartWebServer(store storage.Storage, port string) {
 
 		// Keep connection alive and handle incoming messages
 		for {
-			messageType, _, err := conn.ReadMessage()
+			// Use wrapped connection's readMessage which is thread-safe and serializes with writes
+			messageType, _, err := wrappedConn.readMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 					log.Printf("[DEBUG] WebSocket read error: %v", err)
