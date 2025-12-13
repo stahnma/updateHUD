@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let reconnectAttempts = 0;
     const MAX_RECONNECT_ATTEMPTS = 10;
     const INITIAL_RECONNECT_DELAY = 1000; // 1 second
+    let expandedSystems = new Set(); // Track manually expanded systems
 
     // Initialize WebSocket connection with exponential backoff
     function initWebSocket() {
@@ -205,14 +206,75 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("");
         systemsTable.innerHTML = rows;
 
-        // Restore expanded rows
-        document.querySelectorAll('.details-row[style="display: table-row"]').forEach(row => {
-            const hostname = row.dataset.hostname;
+        // Restore expanded rows for systems that were manually expanded
+        expandedSystems.forEach(hostname => {
+            const detailsRow = document.querySelector(`.details-row[data-hostname="${hostname}"]`);
             const chevron = document.querySelector(`tr[data-hostname="${hostname}"] .chevron`);
-            if (chevron) {
+            if (detailsRow && chevron) {
+                detailsRow.style.display = "table-row";
                 chevron.textContent = "▼";
+                // Load details if not already loaded
+                const detailsContent = detailsRow.querySelector(".details-content");
+                if (!detailsContent.dataset.loaded || Date.now() - detailsContent.dataset.loadedTime > 60000) {
+                    loadSystemDetails(hostname, detailsContent);
+                }
             }
         });
+    }
+
+    // Function to load system details
+    function loadSystemDetails(hostname, detailsContent) {
+        fetch(`/api/systems/${hostname}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch system details: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.pending_updates && data.pending_updates.length > 0) {
+                    const updatesList = data.pending_updates
+                        .map(
+                            (update) =>
+                                `<tr>
+                                    <td>${update.name}</td>
+                                    <td>${update.version || "N/A"}</td>
+                                    <td>${update.source}</td>
+                                </tr>`
+                        )
+                        .join("");
+                    detailsContent.innerHTML = `
+                        <h3>Pending Updates for ${data.hostname}</h3>
+                        <table class="updates-table">
+                            <thead>
+                                <tr>
+                                    <th>Package</th>
+                                    <th>Version</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${updatesList}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    detailsContent.innerHTML = `
+                        <h3>No pending updates for ${data.hostname}</h3>
+                    `;
+                }
+                detailsContent.dataset.loaded = "true";
+                detailsContent.dataset.loadedTime = Date.now();
+            })
+            .catch((error) => {
+                console.error(
+                    `[ERROR] Failed to fetch system details for hostname: ${hostname}:`,
+                    error
+                );
+                detailsContent.innerHTML = `
+                    <p>Error loading details. Please try again.</p>
+                `;
+            });
     }
 
     // Handle row toggle for details
@@ -229,64 +291,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (detailsRow.style.display === "none") {
             detailsRow.style.display = "table-row";
             chevron.textContent = "▼";
+            expandedSystems.add(hostname); // Track as manually expanded
 
             // Fetch details only if not already loaded or if data is stale
             if (!detailsContent.dataset.loaded || Date.now() - detailsContent.dataset.loadedTime > 60000) {
-                fetch(`/api/systems/${hostname}`)
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to fetch system details: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        if (data.pending_updates && data.pending_updates.length > 0) {
-                            const updatesList = data.pending_updates
-                                .map(
-                                    (update) =>
-                                        `<tr>
-                                            <td>${update.name}</td>
-                                            <td>${update.version || "N/A"}</td>
-                                            <td>${update.source}</td>
-                                        </tr>`
-                                )
-                                .join("");
-                            detailsContent.innerHTML = `
-                                <h3>Pending Updates for ${data.hostname}</h3>
-                                <table class="updates-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Package</th>
-                                            <th>Version</th>
-                                            <th>Source</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${updatesList}
-                                    </tbody>
-                                </table>
-                            `;
-                        } else {
-                            detailsContent.innerHTML = `
-                                <h3>No pending updates for ${data.hostname}</h3>
-                            `;
-                        }
-                        detailsContent.dataset.loaded = "true";
-                        detailsContent.dataset.loadedTime = Date.now();
-                    })
-                    .catch((error) => {
-                        console.error(
-                            `[ERROR] Failed to fetch system details for hostname: ${hostname}:`,
-                            error
-                        );
-                        detailsContent.innerHTML = `
-                            <p>Error loading details. Please try again.</p>
-                        `;
-                    });
+                loadSystemDetails(hostname, detailsContent);
             }
         } else {
             detailsRow.style.display = "none";
             chevron.textContent = "▶";
+            expandedSystems.delete(hostname); // Remove from expanded set
         }
     });
 
@@ -307,6 +321,48 @@ document.addEventListener("DOMContentLoaded", () => {
             renderSystems(systemsData);
         });
     });
+
+    // Expand all systems
+    function expandAll() {
+        document.querySelectorAll('.details-row').forEach(detailsRow => {
+            const hostname = detailsRow.dataset.hostname;
+            const chevron = document.querySelector(`tr[data-hostname="${hostname}"] .chevron`);
+            if (chevron && detailsRow.style.display === "none") {
+                detailsRow.style.display = "table-row";
+                chevron.textContent = "▼";
+                expandedSystems.add(hostname);
+                const detailsContent = detailsRow.querySelector(".details-content");
+                if (!detailsContent.dataset.loaded || Date.now() - detailsContent.dataset.loadedTime > 60000) {
+                    loadSystemDetails(hostname, detailsContent);
+                }
+            }
+        });
+    }
+
+    // Collapse all systems
+    function collapseAll() {
+        document.querySelectorAll('.details-row').forEach(detailsRow => {
+            const hostname = detailsRow.dataset.hostname;
+            const chevron = document.querySelector(`tr[data-hostname="${hostname}"] .chevron`);
+            if (chevron && detailsRow.style.display !== "none") {
+                detailsRow.style.display = "none";
+                chevron.textContent = "▶";
+                expandedSystems.delete(hostname);
+            }
+        });
+    }
+
+    // Add event listeners for expand/collapse all buttons
+    const expandAllBtn = document.getElementById("expand-all-btn");
+    const collapseAllBtn = document.getElementById("collapse-all-btn");
+    
+    if (expandAllBtn) {
+        expandAllBtn.addEventListener("click", expandAll);
+    }
+    
+    if (collapseAllBtn) {
+        collapseAllBtn.addEventListener("click", collapseAll);
+    }
 
     // Initial fetch and WebSocket connection
     fetchSystems();
