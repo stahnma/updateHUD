@@ -435,7 +435,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td class="os-cell">${getOSIcon(system.os)} <span class="os-text">${escapeHtml(system.os || '')} ${escapeHtml(system.os_version || '')}</span></td>
                         <td>${escapeHtml(system.architecture || '')}</td>
                         <td>${escapeHtml(system.ip || '')}</td>
-                        <td>${system.updates_available ?
+                        <td>${system.update_status_unknown ?
+                            `<span class="update-badge status-unknown" title="Package manager not detected - update status unknown">
+                                Status unknown
+                            </span>` :
+                            system.updates_available ?
                             `<span class="update-badge update-available${system.pending_updates ? ' priority-' + getUpdatePriority(system.pending_updates) : ''}"
                                    title="Updates available${system.pending_updates ? ': ' + system.pending_updates.map(u => escapeHtml(u.name)).join(', ') : ' - Click for details'}">
                                 Updates${system.pending_updates ? ` (${system.pending_updates.length})` : ' (click for details)'}
@@ -522,6 +526,11 @@ document.addEventListener("DOMContentLoaded", () => {
                                 ${updatesList}
                             </tbody>
                         </table>
+                    `;
+                } else if (data.update_status_unknown) {
+                    detailsContent.innerHTML = `
+                        <h3>Update status unknown for ${data.hostname}</h3>
+                        <p>No supported package manager was detected on this system. The update status cannot be determined.</p>
                     `;
                 } else {
                     detailsContent.innerHTML = `

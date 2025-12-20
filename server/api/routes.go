@@ -13,14 +13,15 @@ import (
 )
 
 type SystemSummary struct {
-	Hostname         string          `json:"hostname"`
-	Architecture     string          `json:"architecture"`
-	Ip               string          `json:"ip"`
-	OS               string          `json:"os"`
-	OSVersion        string          `json:"os_version"`
-	UpdatesAvailable bool            `json:"updates_available"`
-	LastSeen         string          `json:"last_seen"`
-	PendingUpdates   []models.Update `json:"pending_updates"`
+	Hostname            string          `json:"hostname"`
+	Architecture        string          `json:"architecture"`
+	Ip                  string          `json:"ip"`
+	OS                  string          `json:"os"`
+	OSVersion           string          `json:"os_version"`
+	UpdatesAvailable    bool            `json:"updates_available"`
+	UpdateStatusUnknown bool            `json:"update_status_unknown"`
+	LastSeen            string          `json:"last_seen"`
+	PendingUpdates      []models.Update `json:"pending_updates"`
 }
 
 // GetSystemsHandler returns a JSON list of systems with pending updates details
@@ -38,14 +39,15 @@ func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 		summaries := make([]SystemSummary, 0, len(systems))
 		for _, system := range systems {
 			summaries = append(summaries, SystemSummary{
-				Hostname:         system.Hostname,
-				Architecture:     system.Architecture,
-				Ip:               system.Ip,
-				OS:               system.OS,
-				OSVersion:        system.OSVersion,
-				UpdatesAvailable: system.UpdatesAvailable,
-				LastSeen:         system.LastSeen,
-				PendingUpdates:   system.PendingUpdates,
+				Hostname:            system.Hostname,
+				Architecture:        system.Architecture,
+				Ip:                  system.Ip,
+				OS:                  system.OS,
+				OSVersion:           system.OSVersion,
+				UpdatesAvailable:    system.UpdatesAvailable,
+				UpdateStatusUnknown: system.UpdateStatusUnknown,
+				LastSeen:            system.LastSeen,
+				PendingUpdates:      system.PendingUpdates,
 			})
 		}
 

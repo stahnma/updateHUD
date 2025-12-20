@@ -10,11 +10,14 @@ import (
 )
 
 // getDnfUpdates fetches updates from dnf package manager
-func getDnfUpdates() []Update {
+func getDnfUpdates() UpdateResult {
 	var updates []Update
 	if _, err := os.Stat("/usr/bin/dnf"); err != nil {
 		debugLog("dnf not found", "path", "/usr/bin/dnf")
-		return updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: false,
+		}
 	}
 
 	debugLog("Checking for dnf updates...")
@@ -88,7 +91,10 @@ func getDnfUpdates() []Update {
 	}
 
 	debugLog("Found DNF updates", "count", len(updates))
-	return updates
+	return UpdateResult{
+		Updates:         updates,
+		ManagerDetected: true,
+	}
 }
 
 // isRepoStatusLine checks if a line is a repository status line

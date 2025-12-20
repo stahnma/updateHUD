@@ -9,18 +9,24 @@ import (
 )
 
 // getYumUpdates fetches updates from yum package manager
-func getYumUpdates() []Update {
+func getYumUpdates() UpdateResult {
 	var updates []Update
 
 	// If DNF exists, skip YUM check since DNF is the successor
 	if _, err := os.Stat("/usr/bin/dnf"); err == nil {
 		debugLog("DNF detected, skipping YUM update check")
-		return updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: false,
+		}
 	}
 
 	// Check if yum exists
 	if _, err := os.Stat("/usr/bin/yum"); err != nil {
-		return updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: false,
+		}
 	}
 
 	out, err := exec.Command("/usr/bin/yum", "check-update").Output()
@@ -42,5 +48,8 @@ func getYumUpdates() []Update {
 			})
 		}
 	}
-	return updates
+	return UpdateResult{
+		Updates:         updates,
+		ManagerDetected: true,
+	}
 }

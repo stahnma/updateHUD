@@ -8,13 +8,28 @@ import (
 )
 
 // getBrewUpdates fetches updates from brew package manager
-func getBrewUpdates() []Update {
+func getBrewUpdates() UpdateResult {
 	var updates []Update
 	debugLog("Checking for brew updates")
+
+	// Check if brew exists
+	if _, err := exec.LookPath("brew"); err != nil {
+		debugLog("brew not found in PATH")
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: false,
+		}
+	}
+
+	// If we get here, brew exists, so mark as detected even if command fails
 	out, err := exec.Command("brew", "outdated").Output()
 	if err != nil {
 		slog.Error("Error checking updates with brew", "error", err)
-		return updates
+		// Still mark as detected since brew exists, we just couldn't get updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: true,
+		}
 	}
 
 	scanner := bufio.NewScanner(strings.NewReader(string(out)))
@@ -27,5 +42,8 @@ func getBrewUpdates() []Update {
 		})
 	}
 	debugLog("Found brew updates", "count", len(updates))
-	return updates
+	return UpdateResult{
+		Updates:         updates,
+		ManagerDetected: true,
+	}
 }

@@ -8,18 +8,25 @@ import (
 )
 
 // getAptUpdates fetches updates from apt package manager
-func getAptUpdates() []Update {
+func getAptUpdates() UpdateResult {
 	var updates []Update
 	if _, err := os.Stat("/usr/bin/apt"); err != nil {
 		debugLog("apt not found at /usr/bin/apt")
-		return updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: false,
+		}
 	}
 
 	debugLog("Checking for apt updates...")
 	out, err := exec.Command("/usr/bin/apt", "list", "--upgradable").Output()
 	if err != nil {
 		slog.Error("Error checking updates with apt", "error", err)
-		return updates
+		// Still mark as detected since apt exists, we just couldn't get updates
+		return UpdateResult{
+			Updates:         updates,
+			ManagerDetected: true,
+		}
 	}
 
 	// Log raw output for debugging
@@ -82,7 +89,10 @@ func getAptUpdates() []Update {
 		})
 	}
 	debugLog("Found apt updates", "count", len(updates))
-	return updates
+	return UpdateResult{
+		Updates:         updates,
+		ManagerDetected: true,
+	}
 }
 
 // getAptSource determines the source repository for a package

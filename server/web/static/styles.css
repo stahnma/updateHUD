@@ -223,6 +223,11 @@ th:hover {
     color: white;
 }
 
+.status-unknown {
+    background-color: #868e96;
+    color: white;
+}
+
 /* Priority styles */
 .priority-high {
     background-color: #ff6b6b;

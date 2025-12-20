@@ -60,6 +60,7 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 			"os", system.OS,
 			"os_version", system.OSVersion,
 			"updates_available", system.UpdatesAvailable,
+			"update_status_unknown", system.UpdateStatusUnknown,
 			"update_count", len(system.PendingUpdates))
 
 		if system.UpdatesAvailable {

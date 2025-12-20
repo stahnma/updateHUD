@@ -26,14 +26,15 @@ func getEnv(key, fallback string) string {
 }
 
 type System struct {
-	Hostname         string           `json:"hostname"`
-	Architecture     string           `json:"architecture"`
-	Ip               string           `json:"ip"`
-	OS               string           `json:"os"`
-	OSVersion        string           `json:"os_version"`
-	UpdatesAvailable bool             `json:"updates_available"`
-	PendingUpdates   []updates.Update `json:"pending_updates"`
-	Timestamp        string           `json:"timestamp"`
+	Hostname            string           `json:"hostname"`
+	Architecture        string           `json:"architecture"`
+	Ip                  string           `json:"ip"`
+	OS                  string           `json:"os"`
+	OSVersion           string           `json:"os_version"`
+	UpdatesAvailable    bool             `json:"updates_available"`
+	UpdateStatusUnknown bool             `json:"update_status_unknown"`
+	PendingUpdates      []updates.Update `json:"pending_updates"`
+	Timestamp           string           `json:"timestamp"`
 }
 
 // Collects all system data to prepare for publishing
@@ -86,8 +87,17 @@ func collectSystemData() (System, error) {
 	}
 
 	// Pending Updates
-	system.PendingUpdates = updates.GetPendingUpdates()
-	system.UpdatesAvailable = len(system.PendingUpdates) > 0
+	updateResult := updates.GetPendingUpdates()
+	system.PendingUpdates = updateResult.Updates
+	system.UpdateStatusUnknown = !updateResult.ManagerDetected
+	if updateResult.ManagerDetected {
+		// Only set UpdatesAvailable if we actually detected a package manager
+		system.UpdatesAvailable = len(system.PendingUpdates) > 0
+	} else {
+		// If no package manager was detected, don't claim updates are available
+		// but mark status as unknown
+		system.UpdatesAvailable = false
+	}
 
 	// Timestamp
 	system.Timestamp = time.Now().Format(time.RFC3339)
@@ -124,6 +134,7 @@ func sendSystemUpdate(nc *nats.Conn) {
 		"hostname", system.Hostname,
 		"ip", system.Ip,
 		"updates_available", system.UpdatesAvailable,
+		"update_status_unknown", system.UpdateStatusUnknown,
 		"update_count", len(system.PendingUpdates))
 
 	// Publish the message
