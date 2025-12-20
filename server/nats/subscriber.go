@@ -75,7 +75,7 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 			slog.Error("Failed to save system data", "hostname", system.Hostname, "error", err, "duration_ms", time.Since(startTime).Milliseconds())
 		} else {
 			duration := time.Since(startTime)
-			slog.Info("Successfully saved system data", "hostname", system.Hostname, "duration_ms", duration.Milliseconds())
+			slog.Debug("Successfully saved system data", "hostname", system.Hostname, "duration_ms", duration.Milliseconds())
 		}
 	})
 	if err != nil {
