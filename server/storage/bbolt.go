@@ -3,7 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"server/models"
 	"sync"
 	"time"
@@ -49,7 +49,7 @@ func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 		return bucket.Put([]byte(hostname), data)
 	})
 	if err != nil {
-		log.Printf("[ERROR] Failed to save system: %v", err)
+		slog.Error("Failed to save system", "error", err)
 		return err
 	}
 
@@ -65,15 +65,18 @@ func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 				if r := recover(); r != nil {
 					// Channel was closed between check and send - ignore silently
 					// This is expected during shutdown
-					log.Printf("[DEBUG] Dropped update for %s due to channel closure", hostname)
+					slog.Debug("Dropped update due to channel closure", "hostname", hostname)
 				}
 			}()
 			select {
 			case s.updates <- system:
+				slog.Debug("Successfully sent system update to channel", "hostname", hostname)
 			default:
-				log.Printf("[WARNING] Updates channel is full; dropping update for %s", hostname)
+				slog.Warn("Updates channel is full; dropping update", "hostname", hostname)
 			}
 		}()
+	} else {
+		slog.Debug("Updates channel is closed, not sending update", "hostname", hostname)
 	}
 
 	return nil
@@ -112,14 +115,15 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 
 	err := s.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("systems"))
+		// If bucket doesn't exist, return empty array (normal state when no systems have checked in yet)
 		if bucket == nil {
-			return fmt.Errorf("bucket 'systems' not found")
+			return nil
 		}
 
 		return bucket.ForEach(func(k, v []byte) error {
 			var system models.System
 			if err := json.Unmarshal(v, &system); err != nil {
-				log.Printf("[ERROR] Failed to unmarshal system data for key %s: %v, skipping", k, err)
+				slog.Error("Failed to unmarshal system data, skipping", "key", string(k), "error", err)
 				// Continue iteration by returning nil instead of error
 				// This allows other valid records to be loaded even if one is corrupted
 				return nil

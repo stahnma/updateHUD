@@ -1,7 +1,7 @@
 package nats
 
 import (
-	"log"
+	"log/slog"
 	"time"
 
 	natsServer "github.com/nats-io/nats-server/v2/server"
@@ -37,8 +37,7 @@ func StartEmbeddedServer(port int) (*natsServer.Server, string, error) {
 
 	// Get the server URL
 	serverURL := ns.ClientURL()
-	log.Printf("[INFO] Embedded NATS server started on %s", serverURL)
-	log.Printf("[INFO] NATS server ID: %s", ns.ID())
+	slog.Info("Embedded NATS server started", "url", serverURL, "id", ns.ID())
 
 	return ns, serverURL, nil
 }

@@ -1,22 +1,10 @@
 package updates
 
-import (
-	"log"
-	"os"
-	"strings"
-)
-
-var isDebugEnabled bool
-
-func init() {
-	// Check DEBUG environment variable
-	debugEnv := strings.ToLower(os.Getenv("DEBUG"))
-	isDebugEnabled = debugEnv == "1" || debugEnv == "true"
-}
+import "log/slog"
 
 // debugLog prints a message only if debug logging is enabled
-func debugLog(format string, v ...interface{}) {
-	if isDebugEnabled {
-		log.Printf("[DEBUG] "+format, v...)
-	}
+// Uses slog which respects the log level set by the main program
+// Accepts a message and key-value pairs like slog.Debug
+func debugLog(msg string, args ...interface{}) {
+	slog.Debug(msg, args...)
 }

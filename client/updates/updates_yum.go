@@ -2,7 +2,7 @@ package updates
 
 import (
 	"bufio"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -26,7 +26,7 @@ func getYumUpdates() []Update {
 	out, err := exec.Command("/usr/bin/yum", "check-update").Output()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
-			log.Printf("[ERROR] Error checking updates with yum: %v", err)
+			slog.Error("Error checking updates with yum", "error", err)
 		}
 	}
 

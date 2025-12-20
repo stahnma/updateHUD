@@ -2,7 +2,7 @@ package updates
 
 import (
 	"bufio"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strconv"
@@ -13,7 +13,7 @@ import (
 func getDnfUpdates() []Update {
 	var updates []Update
 	if _, err := os.Stat("/usr/bin/dnf"); err != nil {
-		debugLog("dnf not found at /usr/bin/dnf")
+		debugLog("dnf not found", "path", "/usr/bin/dnf")
 		return updates
 	}
 
@@ -21,16 +21,16 @@ func getDnfUpdates() []Update {
 	out, err := exec.Command("/usr/bin/dnf", "check-update").Output()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() != 100 {
-			log.Printf("[ERROR] Error checking updates with dnf: %v", err)
+			slog.Error("Error checking updates with dnf", "error", err)
 		}
 	}
 
-	debugLog("Raw DNF output:\n%s", string(out))
+	debugLog("Raw DNF output", "output", string(out))
 	scanner := bufio.NewScanner(strings.NewReader(string(out)))
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		debugLog("Processing line: '%s'", line)
+		debugLog("Processing line", "line", line)
 
 		// Skip empty lines
 		if line == "" {
@@ -51,44 +51,43 @@ func getDnfUpdates() []Update {
 		}
 
 		fields := strings.Fields(line)
-		debugLog("Found %d fields: %v", len(fields), fields)
+		debugLog("Found fields", "count", len(fields), "fields", fields)
 
 		// A valid package line must have at least 3 fields:
 		// package-name    version-release    repository
 		if len(fields) >= 3 {
 			// Check each field individually first
-			debugLog("Validating package name: '%s'", fields[0])
+			debugLog("Validating package name", "name", fields[0])
 			if !isValidPackageName(fields[0]) {
-				debugLog("Invalid package name format: '%s'", fields[0])
+				debugLog("Invalid package name format", "name", fields[0])
 				continue
 			}
 
-			debugLog("Validating version: '%s'", fields[1])
+			debugLog("Validating version", "version", fields[1])
 			if !isValidVersion(fields[1]) {
-				debugLog("Invalid version format: '%s'", fields[1])
+				debugLog("Invalid version format", "version", fields[1])
 				continue
 			}
 
-			debugLog("Validating repository: '%s'", fields[2])
+			debugLog("Validating repository", "repository", fields[2])
 			if !isValidRepository(fields[2]) {
-				debugLog("Invalid repository format: '%s'", fields[2])
+				debugLog("Invalid repository format", "repository", fields[2])
 				continue
 			}
 
 			// If we get here, all fields are valid
-			debugLog("All fields valid, adding update - Name: %s, Version: %s, Source: %s",
-				fields[0], fields[1], fields[2])
+			debugLog("All fields valid, adding update", "name", fields[0], "version", fields[1], "source", fields[2])
 			updates = append(updates, Update{
 				Name:    fields[0],
 				Version: fields[1],
 				Source:  fields[2],
 			})
 		} else {
-			debugLog("Skipping line with insufficient fields: '%s'", line)
+			debugLog("Skipping line with insufficient fields", "line", line)
 		}
 	}
 
-	debugLog("Found %d DNF updates", len(updates))
+	debugLog("Found DNF updates", "count", len(updates))
 	return updates
 }
 

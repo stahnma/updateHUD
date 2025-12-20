@@ -3,7 +3,7 @@ Description=client.linux System Updates Client
 After=network.target
 
 [Service]
-ExecStart=/home/stahnma/client.linux.amd64 --nats-url=nats://admin:password@192.168.1.167:4222
+ExecStart=/usr/bin/updateHUD-client.linux.amd64
 Restart=always
 RestartSec=10
 User=stahnma

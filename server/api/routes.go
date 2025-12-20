@@ -3,7 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"server/models"
 	"server/storage"
@@ -29,7 +29,7 @@ func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 		// Retrieve all systems from storage
 		systems, err := store.GetAllSystems()
 		if err != nil {
-			log.Printf("[ERROR] Failed to get all systems: %v", err)
+			slog.Error("Failed to get all systems", "error", err)
 			http.Error(w, "Failed to fetch systems", http.StatusInternalServerError)
 			return
 		}
@@ -52,7 +52,7 @@ func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 		// Encode to buffer first to check for errors before writing headers
 		var buf bytes.Buffer
 		if err := json.NewEncoder(&buf).Encode(summaries); err != nil {
-			log.Printf("[ERROR] Failed to encode systems summary: %v", err)
+			slog.Error("Failed to encode systems summary", "error", err)
 			http.Error(w, "Failed to encode systems summary", http.StatusInternalServerError)
 			return
 		}
@@ -60,7 +60,7 @@ func GetSystemsHandler(store storage.Storage) http.HandlerFunc {
 		// Headers can now be safely set since encoding succeeded
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(buf.Bytes()); err != nil {
-			log.Printf("[ERROR] Failed to write response: %v", err)
+			slog.Error("Failed to write response", "error", err)
 		}
 	}
 }
@@ -75,7 +75,7 @@ func GetSystemHandler(store storage.Storage) http.HandlerFunc {
 		// Retrieve the specific system from storage
 		system, err := store.GetSystem(hostname)
 		if err != nil {
-			log.Printf("[ERROR] Failed to get system %s: %v", hostname, err)
+			slog.Error("Failed to get system", "hostname", hostname, "error", err)
 			http.Error(w, "System not found", http.StatusNotFound)
 			return
 		}
@@ -83,7 +83,7 @@ func GetSystemHandler(store storage.Storage) http.HandlerFunc {
 		// Encode to buffer first to check for errors before writing headers
 		var buf bytes.Buffer
 		if err := json.NewEncoder(&buf).Encode(system); err != nil {
-			log.Printf("[ERROR] Failed to encode system details: %v", err)
+			slog.Error("Failed to encode system details", "error", err)
 			http.Error(w, "Failed to encode system details", http.StatusInternalServerError)
 			return
 		}
@@ -91,7 +91,7 @@ func GetSystemHandler(store storage.Storage) http.HandlerFunc {
 		// Headers can now be safely set since encoding succeeded
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(buf.Bytes()); err != nil {
-			log.Printf("[ERROR] Failed to write response: %v", err)
+			slog.Error("Failed to write response", "error", err)
 		}
 	}
 }

@@ -2,7 +2,7 @@ package updates
 
 import (
 	"bufio"
-	"log"
+	"log/slog"
 	"os/exec"
 	"strings"
 )
@@ -10,22 +10,22 @@ import (
 // getBrewUpdates fetches updates from brew package manager
 func getBrewUpdates() []Update {
 	var updates []Update
-	debugLog("Checking for brew updates...")
+	debugLog("Checking for brew updates")
 	out, err := exec.Command("brew", "outdated").Output()
 	if err != nil {
-		log.Printf("[ERROR] Error checking updates with brew: %v", err)
+		slog.Error("Error checking updates with brew", "error", err)
 		return updates
 	}
 
 	scanner := bufio.NewScanner(strings.NewReader(string(out)))
 	for scanner.Scan() {
 		line := scanner.Text()
-		debugLog("Found brew update: %s", line)
+		debugLog("Found brew update", "package", line)
 		updates = append(updates, Update{
 			Name:   line,
 			Source: "brew",
 		})
 	}
-	debugLog("Found %d brew updates", len(updates))
+	debugLog("Found brew updates", "count", len(updates))
 	return updates
 }

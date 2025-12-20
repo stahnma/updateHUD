@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"strconv"
 )
@@ -31,7 +31,7 @@ func LoadConfig() Config {
 		DBPath:   getEnv("DB_PATH", "systems.db"),
 		HTTPPort: getEnv("HTTP_PORT", "8080"),
 	}
-	log.Printf("Loaded configuration: %+v", config)
+	slog.Info("Loaded configuration", "nats_url", config.NATSURL, "nats_port", config.NATSPort, "db_path", config.DBPath, "http_port", config.HTTPPort)
 	return config
 }
 

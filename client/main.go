@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"os"
 	"os/exec"
@@ -16,22 +16,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stahnma/mqttfun/client/updates"
 )
-
-// Global debug flag
-var isDebugEnabled bool
-
-func init() {
-	// Check DEBUG environment variable
-	debugEnv := strings.ToLower(os.Getenv("DEBUG"))
-	isDebugEnabled = debugEnv == "1" || debugEnv == "true"
-}
-
-// debugLog prints a message only if debug logging is enabled
-func debugLog(format string, v ...interface{}) {
-	if isDebugEnabled {
-		log.Printf("[DEBUG] "+format, v...)
-	}
-}
 
 // getEnv gets an environment variable or returns a default value
 func getEnv(key, fallback string) string {
@@ -76,7 +60,7 @@ func collectSystemData() (System, error) {
 		// macOS version
 		out, err := exec.Command("sw_vers", "-productVersion").Output()
 		if err != nil {
-			log.Printf("[ERROR] Failed to get macOS version: %v", err)
+			slog.Error("Failed to get macOS version", "error", err)
 		} else {
 			system.OSVersion = strings.TrimSpace(string(out))
 		}
@@ -96,7 +80,7 @@ func collectSystemData() (System, error) {
 	// IP Address
 	ip, err := getIPAddress()
 	if err != nil {
-		log.Printf("[ERROR] Failed to get IP address: %v", err)
+		slog.Error("Failed to get IP address", "error", err)
 	} else {
 		system.Ip = ip
 	}
@@ -116,39 +100,35 @@ func sendSystemUpdate(nc *nats.Conn) {
 	// Collect system data
 	system, err := collectSystemData()
 	if err != nil {
-		log.Printf("[ERROR] Failed to collect system data: %v", err)
+		slog.Error("Failed to collect system data", "error", err)
 		return
 	}
 
 	// Marshal system data to JSON
 	data, err := json.Marshal(system)
 	if err != nil {
-		log.Printf("[ERROR] Failed to marshal system data: %v", err)
+		slog.Error("Failed to marshal system data", "error", err)
 		return
 	}
 
 	// Enhanced logging for NATS publishing
-	debugLog("---- NATS Publishing Details ----")
-	debugLog("Connected to NATS server: %s", nc.ConnectedUrl())
-	debugLog("Client ID: %s", nc.ConnectedClusterName())
-	debugLog("Connection Statistics:")
-	debugLog("- Reconnects: %d", nc.Stats().Reconnects)
-	debugLog("- Messages In: %d", nc.Stats().InMsgs)
-	debugLog("- Messages Out: %d", nc.Stats().OutMsgs)
-	debugLog("- Bytes In: %d", nc.Stats().InBytes)
-	debugLog("- Bytes Out: %d", nc.Stats().OutBytes)
-	debugLog("Message size: %d bytes", len(data))
-	debugLog("System hostname: %s", system.Hostname)
-	debugLog("System IP: %s", system.Ip)
-	debugLog("Updates available: %v", system.UpdatesAvailable)
-	if system.UpdatesAvailable {
-		debugLog("Number of pending updates: %d", len(system.PendingUpdates))
-	}
+	slog.Debug("NATS Publishing Details",
+		"nats_url", nc.ConnectedUrl(),
+		"client_id", nc.ConnectedClusterName(),
+		"reconnects", nc.Stats().Reconnects,
+		"messages_in", nc.Stats().InMsgs,
+		"messages_out", nc.Stats().OutMsgs,
+		"bytes_in", nc.Stats().InBytes,
+		"bytes_out", nc.Stats().OutBytes,
+		"message_size", len(data),
+		"hostname", system.Hostname,
+		"ip", system.Ip,
+		"updates_available", system.UpdatesAvailable,
+		"update_count", len(system.PendingUpdates))
 
 	// Publish the message
 	subject := "systems.updates." + system.Hostname
-	debugLog("Publishing to subject: %s", subject)
-	debugLog("Message payload: %s", string(data))
+	slog.Debug("Publishing to subject", "subject", subject, "payload", string(data))
 
 	// Set a context with timeout for the publish operation
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -172,13 +152,13 @@ func sendSystemUpdate(nc *nats.Conn) {
 	case err := <-publishChan:
 		if err != nil {
 			if err == ctx.Err() {
-				log.Printf("[ERROR] Publish cancelled due to timeout")
+				slog.Error("Publish cancelled due to timeout")
 			} else {
-				log.Printf("[ERROR] Failed to publish message to NATS: %v", err)
+				slog.Error("Failed to publish message to NATS", "error", err)
 			}
 			return
 		}
-		log.Printf("[INFO] Successfully published to subject: %s", subject)
+		slog.Info("Successfully published to subject", "subject", subject)
 
 		// Try to flush with timeout using context
 		flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -200,15 +180,15 @@ func sendSystemUpdate(nc *nats.Conn) {
 		case err := <-flushChan:
 			if err != nil {
 				if err == flushCtx.Err() {
-					log.Printf("[ERROR] Flush timeout after 5 seconds")
+					slog.Error("Flush timeout after 5 seconds")
 				} else {
-					log.Printf("[ERROR] Failed to flush NATS connection: %v", err)
+					slog.Error("Failed to flush NATS connection", "error", err)
 				}
 			} else {
-				debugLog("Successfully flushed NATS connection")
+				slog.Debug("Successfully flushed NATS connection")
 			}
 		case <-flushCtx.Done():
-			log.Printf("[ERROR] Flush timeout after 5 seconds")
+			slog.Error("Flush timeout after 5 seconds")
 			// Drain the channel in a non-blocking way to prevent goroutine leak
 			select {
 			case <-flushChan:
@@ -217,7 +197,7 @@ func sendSystemUpdate(nc *nats.Conn) {
 		}
 
 	case <-ctx.Done():
-		log.Printf("[ERROR] Publish timeout after 10 seconds")
+		slog.Error("Publish timeout after 10 seconds")
 		// Drain the channel in a non-blocking way to prevent goroutine leak
 		// The goroutine will complete when nc.Publish() returns, but we don't wait
 		select {
@@ -225,8 +205,6 @@ func sendSystemUpdate(nc *nats.Conn) {
 		default:
 		}
 	}
-
-	debugLog("---- End NATS Publishing Details ----")
 }
 
 // Finds the external IP address of the system
@@ -251,6 +229,9 @@ func getIPAddress() (string, error) {
 }
 
 func main() {
+	// Setup logger with CLI flags
+	_ = setupLogger()
+
 	// NATS server URL - configurable via environment variable
 	// If not set, try to get server IP from NATS_SERVER_IP, or default to 192.168.1.157
 	natsURL := getEnv("NATS_URL", "")
@@ -271,7 +252,7 @@ func main() {
 
 	var nc *nats.Conn
 	connectFunc := func() error {
-		log.Printf("[INFO] Attempting to connect to NATS at %s...", natsURL)
+		slog.Info("Attempting to connect to NATS", "url", natsURL)
 		var err error
 		nc, err = nats.Connect(natsURL,
 			nats.Name("System Updates Publisher"),
@@ -282,21 +263,25 @@ func main() {
 			nats.MaxReconnects(-1),            // Unlimited reconnections
 			nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 			nats.ReconnectHandler(func(nc *nats.Conn) {
-				log.Printf("[INFO] Reconnected to NATS at %s", nc.ConnectedUrl())
-				debugLog("Connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
-					nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
+				slog.Info("Reconnected to NATS", "url", nc.ConnectedUrl())
+				slog.Debug("Connection statistics",
+					"reconnects", nc.Stats().Reconnects,
+					"messages_in", nc.Stats().InMsgs,
+					"messages_out", nc.Stats().OutMsgs)
 			}),
 			nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
 				if err != nil {
-					log.Printf("[ERROR] Disconnected from NATS due to error: %v", err)
+					slog.Error("Disconnected from NATS due to error", "error", err)
 				} else {
-					log.Printf("[INFO] Disconnected from NATS")
+					slog.Info("Disconnected from NATS")
 				}
 			}),
 			nats.ClosedHandler(func(nc *nats.Conn) {
-				log.Printf("[INFO] Connection to NATS closed: %v", nc.LastError())
-				debugLog("Final connection statistics - Reconnects: %d, Messages In: %d, Messages Out: %d",
-					nc.Stats().Reconnects, nc.Stats().InMsgs, nc.Stats().OutMsgs)
+				slog.Info("Connection to NATS closed", "reason", nc.LastError())
+				slog.Debug("Final connection statistics",
+					"reconnects", nc.Stats().Reconnects,
+					"messages_in", nc.Stats().InMsgs,
+					"messages_out", nc.Stats().OutMsgs)
 			}),
 		)
 		if err != nil {
@@ -315,25 +300,28 @@ func main() {
 
 	// Retry connection with exponential backoff
 	notifyFunc := func(err error, duration time.Duration) {
-		log.Printf("[WARN] Connection attempt failed: %v. Retrying in %v...", err, duration)
+		slog.Warn("Connection attempt failed, retrying", "error", err, "retry_in", duration)
 	}
 
 	err := backoff.RetryNotify(connectFunc, backoffConfig, notifyFunc)
 	if err != nil {
-		log.Fatalf("[ERROR] Failed to connect to NATS after 10 minutes of retrying: %v", err)
+		slog.Error("Failed to connect to NATS after 10 minutes of retrying", "error", err)
+		os.Exit(1)
 	}
 	defer nc.Close()
 
-	log.Printf("[INFO] Successfully connected to NATS at %s", nc.ConnectedUrl())
-	debugLog("Server ID: %s", nc.ConnectedServerId())
+	slog.Info("Successfully connected to NATS", "url", nc.ConnectedUrl())
+	slog.Debug("Server ID", "id", nc.ConnectedServerId())
 
 	// Function to check NATS connection health
 	checkConnection := func() bool {
 		if !nc.IsConnected() {
 			// Log additional diagnostic info
-			debugLog("Connection check failed - IsConnected: %v, LastError: %v, ConnectedUrl: %v",
-				nc.IsConnected(), nc.LastError(), nc.ConnectedUrl())
-			log.Printf("[WARN] NATS connection is not active")
+			slog.Debug("Connection check failed",
+				"is_connected", nc.IsConnected(),
+				"last_error", nc.LastError(),
+				"connected_url", nc.ConnectedUrl())
+			slog.Warn("NATS connection is not active")
 			return false
 		}
 		return true

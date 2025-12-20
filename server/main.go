@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"server/nats"
@@ -13,13 +13,17 @@ import (
 )
 
 func main() {
+	// Setup logger with CLI flags
+	_ = setupLogger()
+
 	// Load configuration
 	config := LoadConfig()
 
 	// Initialize storage
 	store, err := storage.NewBboltStorage(config.DBPath)
 	if err != nil {
-		log.Fatalf("[ERROR] Failed to initialize storage: %v", err)
+		slog.Error("Failed to initialize storage", "error", err)
+		os.Exit(1)
 	}
 	defer store.Close()
 
@@ -29,34 +33,35 @@ func main() {
 
 	if config.NATSURL == "" || config.NATSURL == "embedded" {
 		// Start embedded NATS server
-		log.Println("[INFO] Starting embedded NATS server...")
+		slog.Info("Starting embedded NATS server...")
 		embeddedServer, natsURL, err = nats.StartEmbeddedServer(config.NATSPort)
 		if err != nil {
-			log.Fatalf("[ERROR] Failed to start embedded NATS server: %v", err)
+			slog.Error("Failed to start embedded NATS server", "error", err)
+			os.Exit(1)
 		}
 		defer func() {
-			log.Println("[INFO] Shutting down embedded NATS server...")
+			slog.Info("Shutting down embedded NATS server...")
 			embeddedServer.Shutdown()
 		}()
 	} else {
 		// Use external NATS server
 		natsURL = config.NATSURL
-		log.Printf("[INFO] Using external NATS server at %s", natsURL)
+		slog.Info("Using external NATS server", "url", natsURL)
 	}
 
 	// Start NATS subscriber in a separate goroutine
 	go func() {
-		log.Println("[INFO] Starting NATS subscriber...")
+		slog.Info("Starting NATS subscriber...")
 		nats.StartSubscriber(store, natsURL)
 	}()
 
 	// Start the web server
-	log.Println("[INFO] Starting web server...")
+	slog.Info("Starting web server...")
 	go web.StartWebServer(store, config.HTTPPort)
 
 	// Wait for interrupt signal to gracefully shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	<-sigChan
-	log.Println("[INFO] Shutting down...")
+	slog.Info("Shutting down...")
 }

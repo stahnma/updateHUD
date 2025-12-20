@@ -1,7 +1,7 @@
 package updates
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -18,7 +18,7 @@ func getAptUpdates() []Update {
 	debugLog("Checking for apt updates...")
 	out, err := exec.Command("/usr/bin/apt", "list", "--upgradable").Output()
 	if err != nil {
-		log.Printf("[ERROR] Error checking updates with apt: %v", err)
+		slog.Error("Error checking updates with apt", "error", err)
 		return updates
 	}
 
@@ -28,7 +28,7 @@ func getAptUpdates() []Update {
 		if len(out) < maxLen {
 			maxLen = len(out)
 		}
-		debugLog("Raw apt output (first %d chars): %s", maxLen, string(out[:maxLen]))
+		debugLog("Raw apt output", "max_len", maxLen, "output", string(out[:maxLen]))
 	}
 
 	lines := strings.Split(string(out), "\n")
@@ -39,58 +39,58 @@ func getAptUpdates() []Update {
 		}
 
 		// Log raw line before any processing
-		debugLog("[Line %d] Raw line: %q", lineNum+1, line)
+		debugLog("Processing apt line", "line_num", lineNum+1, "line", line)
 
 		fields := strings.Fields(line)
 		if len(fields) < 2 {
-			debugLog("[Line %d] Skipping: insufficient fields (%d)", lineNum+1, len(fields))
+			debugLog("Skipping line: insufficient fields", "line_num", lineNum+1, "field_count", len(fields))
 			continue
 		}
 
-		debugLog("[Line %d] Split into %d fields: %v", lineNum+1, len(fields), fields)
+		debugLog("Split into fields", "line_num", lineNum+1, "field_count", len(fields), "fields", fields)
 
 		// Split package name into name and source
 		// fields[0] format should be: "package-name/repository-name" or "package-name/repo1,repo2"
 		// If apt outputs spaces instead of commas, fields[0] might only contain first repo
 		parts := strings.Split(fields[0], "/")
-		debugLog("[Line %d] Split fields[0] '%s' by '/': %v", lineNum+1, fields[0], parts)
+		debugLog("Split package field", "line_num", lineNum+1, "field", fields[0], "parts", parts)
 
 		if len(parts) < 2 {
-			debugLog("[Line %d] Skipping: no '/' separator found in '%s'", lineNum+1, fields[0])
+			debugLog("Skipping line: no '/' separator", "line_num", lineNum+1, "field", fields[0])
 			continue
 		}
 
 		packageName := parts[0]
 		rawSource := parts[1] // This contains whatever apt outputs after the "/"
 
-		debugLog("[Line %d] Extracted package='%s', raw source='%s'", lineNum+1, packageName, rawSource)
+		debugLog("Extracted package info", "line_num", lineNum+1, "package", packageName, "raw_source", rawSource)
 
 		// Deduplicate source to handle cases where apt outputs duplicates
 		source := deduplicateSource(rawSource)
 		if rawSource != source {
-			debugLog("[Line %d] Deduplicated source: '%s' -> '%s'", lineNum+1, rawSource, source)
+			debugLog("Deduplicated source", "line_num", lineNum+1, "original", rawSource, "deduplicated", source)
 		}
 
 		// The version should be in fields[1] (standard apt output format)
 		version := fields[1]
 
-		debugLog("[Line %d] Final: package=%s version=%s source=%s", lineNum+1, packageName, version, source)
+		debugLog("Final package info", "line_num", lineNum+1, "package", packageName, "version", version, "source", source)
 		updates = append(updates, Update{
 			Name:    packageName,
 			Version: version,
 			Source:  source,
 		})
 	}
-	debugLog("Found %d apt updates", len(updates))
+	debugLog("Found apt updates", "count", len(updates))
 	return updates
 }
 
 // getAptSource determines the source repository for a package
 func getAptSource(packageName string) string {
-	debugLog("Getting source for package: %s", packageName)
+	debugLog("Getting source for package", "package", packageName)
 	out, err := exec.Command("/usr/bin/apt-cache", "policy", packageName).Output()
 	if err != nil {
-		log.Printf("[ERROR] Error checking repository source for package %s: %v", packageName, err)
+		slog.Error("Error checking repository source for package", "package", packageName, "error", err)
 		return "unknown"
 	}
 
@@ -101,12 +101,12 @@ func getAptSource(packageName string) string {
 			fields := strings.Fields(line)
 			if len(fields) > 1 {
 				source := fields[len(fields)-1]
-				debugLog("Found source %s for package %s", source, packageName)
+				debugLog("Found source for package", "source", source, "package", packageName)
 				return source
 			}
 		}
 	}
-	debugLog("No source found for package %s, using 'unknown'", packageName)
+	debugLog("No source found for package, using 'unknown'", "package", packageName)
 	return "unknown"
 }
 
