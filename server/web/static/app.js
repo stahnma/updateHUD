@@ -120,7 +120,25 @@ document.addEventListener("DOMContentLoaded", () => {
         lastSeenCells.forEach(cell => {
             const timestamp = cell.dataset.timestamp;
             if (timestamp) {
-                cell.textContent = formatRelativeTime(timestamp);
+                const isStale = isStaleCheckIn(timestamp);
+                const row = cell.closest('tr[data-hostname]');
+                
+                // Update row class
+                if (row) {
+                    if (isStale) {
+                        row.classList.add('stale-checkin');
+                    } else {
+                        row.classList.remove('stale-checkin');
+                    }
+                }
+                
+                // Rebuild cell content with updated timestamp and stale indicator
+                const relativeTime = formatRelativeTime(timestamp);
+                if (isStale) {
+                    cell.innerHTML = '<span class="stale-indicator" title="Host has not checked in for 4+ hours">⚠️ </span>' + relativeTime;
+                } else {
+                    cell.textContent = relativeTime;
+                }
                 cell.title = formatFullTimestamp(timestamp);
             }
         });
@@ -304,6 +322,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return 'none';
     }
 
+    // Check if a system hasn't checked in for 4+ hours
+    function isStaleCheckIn(isoTimestamp) {
+        if (!isoTimestamp) return true; // Consider missing timestamp as stale
+        
+        const now = new Date();
+        const then = new Date(isoTimestamp);
+        const diffMs = now - then;
+        const diffHours = diffMs / (1000 * 60 * 60);
+        
+        return diffHours >= 4;
+    }
+
     // Get OS icon based on OS name
     function getOSIcon(os) {
         if (!os) return '';
@@ -397,8 +427,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (!system || !system.hostname) {
                             return '';
                         }
+                        const isStale = isStaleCheckIn(system.last_seen);
                         return `
-                    <tr data-hostname="${system.hostname}">
+                    <tr data-hostname="${system.hostname}"${isStale ? ' class="stale-checkin"' : ''}>
                         <td class="chevron-cell"><span class="chevron">▶</span></td>
                         <td>${escapeHtml(system.hostname)}</td>
                         <td class="os-cell">${getOSIcon(system.os)} <span class="os-text">${escapeHtml(system.os || '')} ${escapeHtml(system.os_version || '')}</span></td>
@@ -412,7 +443,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             </span>` :
                             `<span class="update-badge up-to-date">Up to date</span>`
                         }</td>
-                        <td class="last-seen-cell" data-timestamp="${escapeHtml(system.last_seen || '')}" title="${formatFullTimestamp(system.last_seen || '')}">${formatRelativeTime(system.last_seen || '')}</td>
+                        <td class="last-seen-cell" data-timestamp="${escapeHtml(system.last_seen || '')}" title="${formatFullTimestamp(system.last_seen || '')}">
+                            ${isStale ? '<span class="stale-indicator" title="Host has not checked in for 4+ hours">⚠️ </span>' : ''}
+                            ${formatRelativeTime(system.last_seen || '')}
+                        </td>
                     </tr>
                     <tr class="details-row" data-hostname="${escapeHtml(system.hostname)}" style="display: none;">
                         <td colspan="7">

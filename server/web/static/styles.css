@@ -274,3 +274,22 @@ th:hover {
     vertical-align: middle;
 }
 
+/* Stale check-in indicator styles */
+.stale-checkin {
+    opacity: 0.5;
+    color: #999;
+}
+
+.stale-checkin:hover {
+    opacity: 0.7;
+}
+
+.stale-checkin td {
+    color: #999;
+}
+
+.stale-indicator {
+    color: #999;
+    margin-right: 4px;
+}
+
