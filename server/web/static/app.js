@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let systemsData = []; // Store the current systems data - always initialize as empty array
     let ws = null;
     let pingIntervalId = null; // Store ping interval ID for cleanup
+    let timestampUpdateIntervalId = null; // Store timestamp update interval ID for cleanup
     let reconnectAttempts = 0;
     const MAX_RECONNECT_ATTEMPTS = 10;
     const INITIAL_RECONNECT_DELAY = 1000; // 1 second
@@ -113,12 +114,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Update all relative timestamps in the table
+    function updateRelativeTimestamps() {
+        const lastSeenCells = document.querySelectorAll('.last-seen-cell');
+        lastSeenCells.forEach(cell => {
+            const timestamp = cell.dataset.timestamp;
+            if (timestamp) {
+                cell.textContent = formatRelativeTime(timestamp);
+                cell.title = formatFullTimestamp(timestamp);
+            }
+        });
+    }
+
     // Clean up WebSocket connection
     function clearWebSocket() {
         // Clear ping interval
         if (pingIntervalId !== null) {
             clearInterval(pingIntervalId);
             pingIntervalId = null;
+        }
+        
+        // Clear timestamp update interval
+        if (timestampUpdateIntervalId !== null) {
+            clearInterval(timestampUpdateIntervalId);
+            timestampUpdateIntervalId = null;
         }
         
         if (ws !== null) {
@@ -144,6 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 reconnectAttempts = 0; // Reset reconnection attempts
                 initWebSocket();
             }
+            // Update relative timestamps when page becomes visible
+            updateRelativeTimestamps();
         }
     });
 
@@ -176,8 +197,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Format timestamp to be more user-friendly
-    function formatTimestamp(isoTimestamp) {
+    // Format timestamp to full readable format (for tooltips)
+    function formatFullTimestamp(isoTimestamp) {
+        if (!isoTimestamp) return '';
         const date = new Date(isoTimestamp);
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const day = date.getUTCDate().toString().padStart(2, '0');
@@ -187,7 +209,86 @@ document.addEventListener("DOMContentLoaded", () => {
         const minutes = date.getUTCMinutes().toString().padStart(2, '0');
         const seconds = date.getUTCSeconds().toString().padStart(2, '0');
         
-        return `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
+        return `${day} ${month} ${year} ${hours}:${minutes}:${seconds} UTC`;
+    }
+
+    // Format timestamp to human-readable relative time
+    function formatRelativeTime(isoTimestamp) {
+        if (!isoTimestamp) return 'never';
+        
+        const now = new Date();
+        const then = new Date(isoTimestamp);
+        const diffMs = now - then;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        // Handle future dates (shouldn't happen, but just in case)
+        if (diffMs < 0) {
+            return 'in the future';
+        }
+        
+        // Less than 10 seconds
+        if (diffSeconds < 10) {
+            return 'just now';
+        }
+        
+        // Less than 1 minute
+        if (diffSeconds < 60) {
+            return 'about a minute ago';
+        }
+        
+        // Less than 2 minutes
+        if (diffMinutes < 2) {
+            return 'about a minute ago';
+        }
+        
+        // Less than 1 hour
+        if (diffMinutes < 60) {
+            return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`;
+        }
+        
+        // Less than 24 hours
+        if (diffHours < 24) {
+            if (diffHours === 1) {
+                return 'about an hour ago';
+            }
+            return `about ${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+        }
+        
+        // Less than 7 days
+        if (diffDays < 7) {
+            if (diffDays === 1) {
+                return 'about a day ago';
+            }
+            return `about ${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+        }
+        
+        // Less than 30 days
+        const diffWeeks = Math.floor(diffDays / 7);
+        if (diffDays < 30) {
+            if (diffWeeks === 1) {
+                return 'about a week ago';
+            }
+            return `about ${diffWeeks} week${diffWeeks === 1 ? '' : 's'} ago`;
+        }
+        
+        // Less than 365 days
+        const diffMonths = Math.floor(diffDays / 30);
+        if (diffDays < 365) {
+            if (diffMonths === 1) {
+                return 'about a month ago';
+            }
+            return `about ${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`;
+        }
+        
+        // More than a year
+        const diffYears = Math.floor(diffDays / 365);
+        if (diffYears === 1) {
+            return 'about a year ago';
+        }
+        return `about ${diffYears} year${diffYears === 1 ? '' : 's'} ago`;
     }
 
     function getUpdatePriority(updates) {
@@ -311,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             </span>` :
                             `<span class="update-badge up-to-date">Up to date</span>`
                         }</td>
-                        <td>${formatTimestamp(system.last_seen || '')}</td>
+                        <td class="last-seen-cell" data-timestamp="${escapeHtml(system.last_seen || '')}" title="${formatFullTimestamp(system.last_seen || '')}">${formatRelativeTime(system.last_seen || '')}</td>
                     </tr>
                     <tr class="details-row" data-hostname="${escapeHtml(system.hostname)}" style="display: none;">
                         <td colspan="7">
@@ -494,5 +595,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial fetch and WebSocket connection
     fetchSystems();
     initWebSocket();
+    
+    // Set up periodic update of relative timestamps (every 30 seconds)
+    timestampUpdateIntervalId = setInterval(() => {
+        updateRelativeTimestamps();
+    }, 30000);
 });
 
