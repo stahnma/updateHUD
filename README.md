@@ -57,32 +57,64 @@ make fmt       # Format code
 
 ### Server Configuration
 
-The server can be configured via environment variables:
+The server can be configured via environment variables and CLI flags:
 
+**Environment Variables:**
 - `NATS_URL`: NATS server URL (default: `embedded` - runs embedded NATS server)
 - `NATS_PORT`: Port for embedded NATS server (default: `4222`)
 - `DB_PATH`: Path to BoltDB database file (default: `systems.db`)
 - `HTTP_PORT`: Web server port (default: `8080`)
 
+**CLI Flags:**
+- `--dev`: Enable dev mode (debug logging enabled)
+- `--json`: Output logs in JSON format (default: text format)
+
 Example:
 ```bash
 export HTTP_PORT=3000
 export DB_PATH=/var/lib/updateHUD/systems.db
-./server
+./server --dev
 ```
 
 ### Client Configuration
 
-The client can be configured via environment variables:
+The client can be configured via environment variables and CLI flags:
 
+**Environment Variables:**
 - `NATS_URL`: NATS server URL (e.g., `nats://192.168.1.157:4222`)
 - `NATS_SERVER_IP`: NATS server IP address (default: `192.168.1.157`)
-- `DEBUG`: Enable debug logging (set to `1` or `true`)
+
+**CLI Flags:**
+- `--dev`: Enable dev mode (debug logging enabled)
+- `--json`: Output logs in JSON format (default: text format)
 
 Example:
 ```bash
 export NATS_URL=nats://192.168.1.157:4222
-./client
+./client --dev
+```
+
+### Logging
+
+The application uses structured logging with `log/slog`:
+
+- **Default**: Info level, text format (syslog-like) on stdout
+- **Dev Mode** (`--dev`): Debug level enabled, shows detailed debug information
+- **JSON Output** (`--json`): Outputs logs in JSON format for log aggregation systems
+
+Examples:
+```bash
+# Default: Info level, text format
+./server
+
+# Dev mode: Debug level, text format
+./server --dev
+
+# JSON output
+./server --json
+
+# Dev mode with JSON output
+./server --dev --json
 ```
 
 ### Running as a Service
@@ -95,6 +127,8 @@ The client can be run as a systemd service. See `client/contrib/systemd.unit` fo
    ```bash
    cd server
    make run
+   # Or with dev mode for debug logging:
+   ./server --dev
    ```
    The web interface will be available at `http://localhost:8080` (or your configured HTTP_PORT).
 
@@ -102,6 +136,8 @@ The client can be run as a systemd service. See `client/contrib/systemd.unit` fo
    ```bash
    cd client
    ./client
+   # Or with dev mode for debug logging:
+   ./client --dev
    ```
    The client will automatically connect to the NATS server and start reporting system information.
 

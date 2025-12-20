@@ -68,6 +68,10 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 			}
 		}
 
+		// Check if this is a first-time check-in
+		_, getErr := store.GetSystem(system.Hostname)
+		isFirstTime := getErr != nil
+
 		// Store the system data
 		slog.Debug("Calling SaveSystem", "hostname", system.Hostname)
 		startTime := time.Now()
@@ -75,7 +79,11 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 			slog.Error("Failed to save system data", "hostname", system.Hostname, "error", err, "duration_ms", time.Since(startTime).Milliseconds())
 		} else {
 			duration := time.Since(startTime)
-			slog.Debug("Successfully saved system data", "hostname", system.Hostname, "duration_ms", duration.Milliseconds())
+			if isFirstTime {
+				slog.Info("System checked in for the first time", "hostname", system.Hostname, "ip", system.Ip, "os", system.OS, "duration_ms", duration.Milliseconds())
+			} else {
+				slog.Debug("Successfully saved system data", "hostname", system.Hostname, "duration_ms", duration.Milliseconds())
+			}
 		}
 	})
 	if err != nil {
