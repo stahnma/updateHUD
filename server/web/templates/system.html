@@ -1,10 +1,14 @@
 <div class="modal-content">
     <h2>Updates for {{.Hostname}}</h2>
-    <ul>
+    <ul style="list-style: none; padding: 0; margin: 16px 0;">
         {{range .PendingUpdates}}
-        <li>{{.Name}} ({{.Source}}) - Version: {{.Version}}</li>
+        <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+            <strong style="color: var(--text-primary);">{{.Name}}</strong>
+            <span style="color: var(--text-secondary); margin-left: 8px;">({{.Source}})</span>
+            <span style="color: var(--accent-blue); margin-left: 8px;">Version: {{.Version}}</span>
+        </li>
         {{end}}
     </ul>
-    <button onclick="closeModal()">Close</button>
+    <button onclick="closeModal()" style="margin-top: 16px;">Close</button>
 </div>
 

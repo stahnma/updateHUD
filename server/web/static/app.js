@@ -405,8 +405,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (systems.length === 0) {
             systemsTable.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 2rem; color: #666;">
-                        No systems have checked in yet. Systems will appear here automatically as they connect.
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <div style="font-size: 16px; margin-bottom: 8px;">📡</div>
+                        <div style="font-weight: 500; margin-bottom: 4px;">No systems have checked in yet</div>
+                        <div style="font-size: 13px; opacity: 0.8;">Systems will appear here automatically as they connect</div>
                     </td>
                 </tr>
             `;
@@ -471,8 +473,10 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Failed to generate table rows:", error);
             systemsTable.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 2rem; color: #f00;">
-                        Error rendering systems: ${error.message}
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: var(--accent-red);">
+                        <div style="font-size: 16px; margin-bottom: 8px;">⚠️</div>
+                        <div style="font-weight: 500; margin-bottom: 4px;">Error rendering systems</div>
+                        <div style="font-size: 13px; opacity: 0.8;">${escapeHtml(error.message)}</div>
                     </td>
                 </tr>
             `;
@@ -573,18 +577,17 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((data) => {
                 let detailsHTML = '';
                 
-                // Add delete button
+                // Prepare delete button HTML (will be placed at the end)
                 const isStale = isStaleCheckIn(data.last_seen);
                 const staleDays = getStaleDays(data.last_seen);
                 const deleteButtonHTML = `
-                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
-                        <button class="delete-system-btn" data-hostname="${escapeHtml(hostname)}" 
-                                style="background-color: #dc3545; padding: 8px 16px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 14px;">
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: right;">
+                        ${isStale && staleDays >= 7 ? 
+                            '<span style="margin-right: 12px; color: var(--accent-orange); font-size: 13px; font-weight: 500;">⚠️ This system has not checked in for ' + staleDays + ' days</span>' : 
+                            ''}
+                        <button class="delete-system-btn" data-hostname="${escapeHtml(hostname)}">
                             🗑️ Delete System
                         </button>
-                        ${isStale && staleDays >= 7 ? 
-                            '<span style="margin-left: 10px; color: #dc3545; font-size: 0.9em;">⚠️ This system has not checked in for ' + staleDays + ' days</span>' : 
-                            ''}
                     </div>
                 `;
                 
@@ -600,7 +603,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         )
                         .join("");
                     detailsHTML = `
-                        ${deleteButtonHTML}
                         <h3>Pending Updates for ${escapeHtml(data.hostname)}</h3>
                         <table class="updates-table">
                             <thead>
@@ -614,17 +616,18 @@ document.addEventListener("DOMContentLoaded", () => {
                                 ${updatesList}
                             </tbody>
                         </table>
+                        ${deleteButtonHTML}
                     `;
                 } else if (data.update_status_unknown) {
                     detailsHTML = `
-                        ${deleteButtonHTML}
                         <h3>Update status unknown for ${escapeHtml(data.hostname)}</h3>
                         <p>No supported package manager was detected on this system. The update status cannot be determined.</p>
+                        ${deleteButtonHTML}
                     `;
                 } else {
                     detailsHTML = `
-                        ${deleteButtonHTML}
                         <h3>No pending updates for ${escapeHtml(data.hostname)}</h3>
+                        ${deleteButtonHTML}
                     `;
                 }
                 
@@ -641,7 +644,10 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => {
                 console.error(`Failed to fetch system details for ${hostname}:`, error);
                 detailsContent.innerHTML = `
-                    <p>Error loading details. Please try again.</p>
+                    <div style="padding: 16px; background: rgba(248, 81, 73, 0.1); border: 1px solid var(--accent-red); border-radius: 6px; color: var(--accent-red);">
+                        <strong>Error loading details</strong>
+                        <div style="margin-top: 8px; font-size: 13px; opacity: 0.9;">${escapeHtml(error.message || 'Please try again')}</div>
+                    </div>
                 `;
             });
     }
