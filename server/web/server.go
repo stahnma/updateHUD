@@ -154,6 +154,9 @@ func StartWebServer(store storage.Storage, port string) {
 	r.HandleFunc("/api/systems/{hostname}", api.GetSystemHandler(store)).Methods("GET")
 	r.HandleFunc("/api/systems/{hostname}", api.DeleteSystemHandler(store)).Methods("DELETE")
 
+	// API documentation endpoint
+	r.HandleFunc("/apidoc", apiDocsHandler)
+
 	// Serve the main page from embedded filesystem
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := templateFiles.ReadFile("templates/index.html")
@@ -263,4 +266,16 @@ func StartWebServer(store storage.Storage, port string) {
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		slog.Error("Web server failed", "error", err)
 	}
+}
+
+// apiDocsHandler serves the API documentation page
+func apiDocsHandler(w http.ResponseWriter, r *http.Request) {
+	data, err := templateFiles.ReadFile("templates/apidoc.html")
+	if err != nil {
+		slog.Error("Failed to read apidoc.html", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write(data)
 }

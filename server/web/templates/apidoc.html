@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - MQTTFun</title>
+    <link rel="stylesheet" href="/static/apidoc.css">
+</head>
+<body>
+    <div class="container">
+        <h1>API Documentation</h1>
+        <p class="subtitle">MQTTFun Server API Reference</p>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/api/systems</span>
+            </div>
+            <div class="description">
+                Returns a JSON array of all registered systems with their update status and pending updates.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Response</div>
+                <div class="response-item">
+                    <span class="response-code success">200 OK</span>
+                    <span>Returns an array of system summaries</span>
+                </div>
+                <div class="code-block">[
+  {
+    "hostname": "server1.example.com",
+    "architecture": "amd64",
+    "ip": "192.168.1.100",
+    "os": "debian",
+    "os_version": "12",
+    "updates_available": true,
+    "update_status_unknown": false,
+    "last_seen": "2024-01-15T10:30:00Z",
+    "pending_updates": [
+      {
+        "name": "nginx",
+        "version": "1.25.0",
+        "source": "apt"
+      }
+    ]
+  }
+]</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/api/systems/{hostname}</span>
+            </div>
+            <div class="description">
+                Returns detailed information for a specific system identified by hostname.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Path Parameters</div>
+                <div class="param">
+                    <div class="param-name">hostname</div>
+                    <div class="param-desc">The hostname of the system to retrieve (required)</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Response</div>
+                <div class="response-item">
+                    <span class="response-code success">200 OK</span>
+                    <span>Returns the system details</span>
+                </div>
+                <div class="code-block">{
+  "hostname": "server1.example.com",
+  "architecture": "amd64",
+  "ip": "192.168.1.100",
+  "os": "debian",
+  "os_version": "12",
+  "updates_available": true,
+  "update_status_unknown": false,
+  "last_seen": "2024-01-15T10:30:00Z",
+  "pending_updates": [
+    {
+      "name": "nginx",
+      "version": "1.25.0",
+      "source": "apt"
+    },
+    {
+      "name": "openssl",
+      "version": "3.0.11",
+      "source": "apt"
+    }
+  ]
+}</div>
+                <div class="response-item" style="margin-top: 15px;">
+                    <span class="response-code notfound">404 Not Found</span>
+                    <span>System not found</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="path">/api/systems/{hostname}</span>
+            </div>
+            <div class="description">
+                Deletes a system from the database by hostname.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Path Parameters</div>
+                <div class="param">
+                    <div class="param-name">hostname</div>
+                    <div class="param-desc">The hostname of the system to delete (required)</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Response</div>
+                <div class="response-item">
+                    <span class="response-code success">200 OK</span>
+                    <span>System deleted successfully</span>
+                </div>
+                <div class="code-block">{
+  "status": "success",
+  "message": "System deleted successfully",
+  "hostname": "server1.example.com"
+}</div>
+                <div class="response-item" style="margin-top: 15px;">
+                    <span class="response-code notfound">404 Not Found</span>
+                    <span>System not found</span>
+                </div>
+                <div class="response-item">
+                    <span class="response-code error">400 Bad Request</span>
+                    <span>Hostname is required</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/ws</span>
+            </div>
+            <div class="description">
+                WebSocket endpoint for real-time system updates. Clients can connect to receive live updates when systems report their status.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">WebSocket Protocol</div>
+                <div class="param">
+                    <div class="param-name">Connection</div>
+                    <div class="param-desc">Upgrade HTTP connection to WebSocket using the standard WebSocket handshake</div>
+                </div>
+                <div class="param">
+                    <div class="param-name">Messages</div>
+                    <div class="param-desc">Server sends JSON-encoded system update objects when systems report their status</div>
+                </div>
+                <div class="param">
+                    <div class="param-name">Keepalive</div>
+                    <div class="param-desc">Server sends ping frames every 30 seconds. Client can send "ping" text messages for keepalive</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Data Models</div>
+            
+            <div class="param">
+                <div class="param-name">System</div>
+                <div class="param-desc">
+                    <strong>hostname</strong> (string): System hostname<br>
+                    <strong>architecture</strong> (string): System architecture (e.g., "amd64", "arm64")<br>
+                    <strong>ip</strong> (string): System IP address<br>
+                    <strong>os</strong> (string): Operating system name (e.g., "debian", "fedora", "macos")<br>
+                    <strong>os_version</strong> (string): Operating system version<br>
+                    <strong>updates_available</strong> (boolean): Whether updates are available<br>
+                    <strong>update_status_unknown</strong> (boolean): Whether update status could not be determined<br>
+                    <strong>last_seen</strong> (string): ISO 8601 timestamp of last system check-in<br>
+                    <strong>pending_updates</strong> (array): Array of Update objects
+                </div>
+            </div>
+
+            <div class="param">
+                <div class="param-name">Update</div>
+                <div class="param-desc">
+                    <strong>name</strong> (string): Package name<br>
+                    <strong>version</strong> (string): Available version<br>
+                    <strong>source</strong> (string): Package manager source (e.g., "apt", "dnf", "brew")
+                </div>
+            </div>
+        </div>
+
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    <footer class="floating-footer">
+        <a href="https://github.com/stahnma/mqttfun" target="_blank" rel="noopener noreferrer">GitHub Source</a>
+        <span class="separator">|</span>
+        <a href="/apidoc">API Documentation</a>
+    </footer>
+</body>
+</html>
+
