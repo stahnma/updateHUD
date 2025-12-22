@@ -310,16 +310,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getUpdatePriority(updates) {
-        if (!updates) return 'none';
+        if (!updates || updates.length === 0) return 'none';
         // Check for security updates
         const hasSecurityUpdates = updates.some(u =>
             u.name.toLowerCase().includes('security') ||
             u.source.toLowerCase().includes('security')
         );
         if (hasSecurityUpdates) return 'high';
-        if (updates.length > 5) return 'medium';
-        if (updates.length > 0) return 'low';
-        return 'none';
+        // Any updates (non-security) are medium priority (yellow)
+        return 'medium';
     }
 
     // Check if a system hasn't checked in for 4+ hours
