@@ -14,8 +14,8 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/nats-io/nats.go"
-	"github.com/stahnma/mqttfun/client/metrics"
-	"github.com/stahnma/mqttfun/client/updates"
+	"github.com/stahnma/muc/client/metrics"
+	"github.com/stahnma/muc/client/updates"
 )
 
 // getEnv gets an environment variable or returns a default value

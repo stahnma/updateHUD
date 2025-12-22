@@ -7,7 +7,7 @@
     <script>
         // Apply theme immediately to prevent flash of unstyled content
         (function() {
-            const theme = localStorage.getItem('mqttfun-theme') || 
+            const theme = localStorage.getItem('muc-theme') ||
                 (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
             if (theme === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
@@ -80,7 +80,7 @@
     <footer class="floating-footer">
         <a href="/">Home</a>
         <span class="separator">|</span>
-        <a href="https://github.com/stahnma/mqttfun" target="_blank" rel="noopener noreferrer">GitHub Source</a>
+        <a href="https://github.com/stahnma/muc" target="_blank" rel="noopener noreferrer">GitHub Source</a>
         <span class="separator">|</span>
         <a href="/apidoc">API Documentation</a>
     </footer>

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation - MQTTFun</title>
+    <title>API Documentation - My Update Center</title>
     <script>
         // Apply theme immediately to prevent flash of unstyled content
         (function() {
-            const theme = localStorage.getItem('mqttfun-theme') || 
+            const theme = localStorage.getItem('muc-theme') ||
                 (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
             if (theme === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
@@ -21,7 +21,7 @@
     <button id="theme-toggle-btn" class="theme-toggle" aria-label="Switch theme">☀️</button>
     <div class="container">
         <h1>API Documentation</h1>
-        <p class="subtitle">MQTTFun Server API Reference</p>
+        <p class="subtitle">My Update Center Server API Reference</p>
 
         <div class="endpoint">
             <div class="endpoint-header">
@@ -246,7 +246,7 @@
                 <div class="code-block"># Scrape metrics with Prometheus
 # Add to prometheus.yml:
 scrape_configs:
-  - job_name: 'mqttfun-server'
+  - job_name: 'muc-server'
     static_configs:
       - targets: ['localhost:8080']
 
@@ -288,7 +288,7 @@ curl http://localhost:8080/metrics</div>
     <footer class="floating-footer">
         <a href="/">Home</a>
         <span class="separator">|</span>
-        <a href="https://github.com/stahnma/mqttfun" target="_blank" rel="noopener noreferrer">GitHub Source</a>
+        <a href="https://github.com/stahnma/muc" target="_blank" rel="noopener noreferrer">GitHub Source</a>
         <span class="separator">|</span>
         <a href="/apidoc">API Documentation</a>
     </footer>

@@ -1,4 +1,4 @@
-# System Updates Monitor
+# My Update Center (MUC)
 
 A distributed system monitoring tool that tracks pending package updates across your home network. The system consists of client that run on each machine and a server that aggregates and displays update information via a web interface.
 

@@ -1,4 +1,4 @@
-module mqttfun
+module github.com/stahnma/muc
 
 go 1.23
 

@@ -1,7 +1,7 @@
 .PHONY: all build clean test fmt lint install client server linux-all help
 
 # Project configuration
-NAME := mqttfun
+NAME := muc
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)

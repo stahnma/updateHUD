@@ -1,6 +1,6 @@
 // Theme management with localStorage and browser preference detection
 (function() {
-    const THEME_STORAGE_KEY = 'mqttfun-theme';
+    const THEME_STORAGE_KEY = 'muc-theme';
     const THEME_ATTR = 'data-theme';
     
     // Get the current theme from localStorage or detect from browser preference

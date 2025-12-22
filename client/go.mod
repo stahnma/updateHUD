@@ -1,4 +1,4 @@
-module github.com/stahnma/mqttfun/client
+module github.com/stahnma/muc/client
 
 go 1.23.4
 

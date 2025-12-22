@@ -1,6 +1,6 @@
 reporter
 *.swp
-mqttfun
+muc
 upc
 ups
 systems.db
