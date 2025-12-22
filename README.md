@@ -78,20 +78,63 @@ export DB_PATH=/var/lib/updateHUD/systems.db
 
 ### Client Configuration
 
-The client can be configured via environment variables and CLI flags:
+The client supports automatic server discovery using multiple methods, tried in order:
+
+1. **Environment Variable Override**: `NATS_URL` (highest priority)
+2. **DNS SRV Records**: Looks for `_muc-server._tcp`, `_muc-nats._tcp`, or `_nats._tcp` service records (tried in order)
+3. **Consul Service Discovery**: Queries Consul for `nats`, `muc-nats`, or `muc-server` services (tried in order, most generic first)
+4. **Environment Variable Fallback**: `NATS_SERVER_IP` with default port 4222
+5. **Hardcoded Default**: `192.168.1.157:4222` (last resort)
 
 **Environment Variables:**
-- `NATS_URL`: NATS server URL (e.g., `nats://192.168.1.157:4222`)
-- `NATS_SERVER_IP`: NATS server IP address (default: `192.168.1.157`)
+- `NATS_URL`: NATS server URL (e.g., `nats://192.168.1.157:4222`) - **explicit override, highest priority**
+- `NATS_SERVER_IP`: NATS server IP address (fallback if discovery fails)
+- `NATS_PORT`: NATS server port (default: `4222`)
+- `NATS_DISCOVERY_DOMAIN`: Domain for DNS SRV lookup (default: tries hostname domain, `local`, `lan`, `home.arpa`)
+- `NATS_DISCOVERY_SERVICE`: Service name for DNS SRV lookup (default: tries `muc-server`, `muc-nats`, `nats` in order)
+- `CONSUL_HTTP_ADDR`: Consul API address (default: `localhost:8500`)
+- `NATS_CONSUL_SERVICE`: Consul service name to query (default: tries `nats`, `muc-nats`, `muc-server` in order)
 
 **CLI Flags:**
 - `--dev`: Enable dev mode (debug logging enabled)
 - `--json`: Output logs in JSON format (default: text format)
 
-Example:
+**Examples:**
+
+Explicit configuration:
 ```bash
 export NATS_URL=nats://192.168.1.157:4222
 ./client --dev
+```
+
+DNS SRV record discovery (requires DNS configuration):
+```bash
+# Configure DNS SRV records (tried in order):
+# - _muc-server._tcp.example.com (most specific, tried first)
+# - _muc-nats._tcp.example.com
+# - _nats._tcp.example.com (generic, tried last)
+# Example: _muc-server._tcp.example.com -> server.example.com:4222
+export NATS_DISCOVERY_DOMAIN=example.com
+./client
+
+# Or specify a specific service name:
+export NATS_DISCOVERY_DOMAIN=example.com
+export NATS_DISCOVERY_SERVICE=muc-server
+./client
+```
+
+Consul service discovery:
+```bash
+# Ensure Consul is running and service is registered
+# Service names tried in order: nats, muc-nats, muc-server
+export CONSUL_HTTP_ADDR=consul.example.com:8500
+export NATS_CONSUL_SERVICE=nats  # Optional: specify a specific service name
+./client
+```
+
+Automatic discovery (no configuration needed if DNS/Consul is set up):
+```bash
+./client  # Will try DNS SRV, then Consul, then fallback to default
 ```
 
 ### Logging

@@ -14,6 +14,7 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/nats-io/nats.go"
+	"github.com/stahnma/muc/client/discovery"
 	"github.com/stahnma/muc/client/metrics"
 	"github.com/stahnma/muc/client/updates"
 )
@@ -270,14 +271,12 @@ func main() {
 	// Setup logger with CLI flags
 	_ = setupLogger()
 
-	// NATS server URL - configurable via environment variable
-	// If not set, try to get server IP from NATS_SERVER_IP, or default to 192.168.1.157
-	natsURL := getEnv("NATS_URL", "")
-	if natsURL == "" {
-		// Try to get server IP from environment or use 192.168.1.157
-		serverIP := getEnv("NATS_SERVER_IP", "192.168.1.157")
-		natsURL = fmt.Sprintf("nats://%s:4222", serverIP)
-	}
+	// Discover NATS server using multiple methods:
+	// 1. NATS_URL environment variable (explicit override)
+	// 2. DNS SRV record lookup
+	// 3. Consul service discovery (if available)
+	// 4. NATS_SERVER_IP environment variable or default IP
+	natsURL := discovery.DiscoverNATSServer()
 
 	// Configure exponential backoff: start at 5s, max 10 minutes
 	// Pattern: 5s, 10s, 20s, 40s, 80s, 160s, 320s, 600s (capped)
