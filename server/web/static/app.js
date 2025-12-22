@@ -375,6 +375,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return '<img class="os-icon" src="/static/images/linux-48.png" alt="Rocky Linux" width="20" height="20">';
         }
         
+        // NixOS
+        if (osLower.includes('nixos')) {
+            return '<img class="os-icon" src="/static/images/nixos.png" alt="NixOS" width="20" height="20">';
+        }
+        
         // Generic Linux fallback - use Linux icon
         if (osLower.includes('linux') || osLower.includes('armbian')) {
             return '<img class="os-icon" src="/static/images/linux-48.png" alt="Linux" width="20" height="20">';
