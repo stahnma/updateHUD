@@ -272,10 +272,10 @@ func main() {
 	_ = setupLogger()
 
 	// Discover NATS server using multiple methods:
-	// 1. NATS_URL environment variable (explicit override)
+	// 1. MUC_NATS_URL environment variable (explicit override)
 	// 2. DNS SRV record lookup
 	// 3. Consul service discovery (if available)
-	// 4. NATS_SERVER_IP environment variable or default IP
+	// 4. MUC_NATS_SERVER_IP environment variable or default IP
 	natsURL := discovery.DiscoverNATSServer()
 
 	// Configure exponential backoff: start at 5s, max 10 minutes

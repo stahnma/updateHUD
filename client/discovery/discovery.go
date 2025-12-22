@@ -13,15 +13,15 @@ import (
 )
 
 // DiscoverNATSServer attempts to discover the NATS server using multiple methods:
-// 1. Environment variable NATS_URL (explicit override)
+// 1. Environment variable MUC_NATS_URL (explicit override)
 // 2. DNS SRV record lookup (tries _muc-server._tcp, _muc-nats._tcp, _nats._tcp in order)
 // 3. Consul service discovery (if available)
-// 4. Environment variable NATS_SERVER_IP (fallback)
+// 4. Environment variable MUC_NATS_SERVER_IP (fallback)
 // 5. Default hardcoded IP (last resort)
 func DiscoverNATSServer() string {
-	// Priority 1: Explicit NATS_URL override
-	if natsURL := os.Getenv("NATS_URL"); natsURL != "" {
-		slog.Info("Using NATS_URL from environment", "url", natsURL)
+	// Priority 1: Explicit MUC_NATS_URL override
+	if natsURL := os.Getenv("MUC_NATS_URL"); natsURL != "" {
+		slog.Info("Using MUC_NATS_URL from environment", "url", natsURL)
 		return natsURL
 	}
 
@@ -37,14 +37,14 @@ func DiscoverNATSServer() string {
 		return url
 	}
 
-	// Priority 4: Environment variable NATS_SERVER_IP
-	serverIP := os.Getenv("NATS_SERVER_IP")
+	// Priority 4: Environment variable MUC_NATS_SERVER_IP
+	serverIP := os.Getenv("MUC_NATS_SERVER_IP")
 	if serverIP == "" {
 		serverIP = "192.168.1.157" // Default fallback
 	}
 
 	// Default port
-	port := os.Getenv("NATS_PORT")
+	port := os.Getenv("MUC_NATS_PORT")
 	if port == "" {
 		port = "4222"
 	}
@@ -59,19 +59,19 @@ func DiscoverNATSServer() string {
 // 1. _muc-server._tcp (most specific to this application)
 // 2. _muc-nats._tcp
 // 3. _nats._tcp (generic NATS service)
-// The domain can be specified via NATS_DISCOVERY_DOMAIN environment variable,
+// The domain can be specified via MUC_NATS_DISCOVERY_DOMAIN environment variable,
 // or it will try common defaults.
 func discoverViaDNS() string {
 	// Service names to try, in order of specificity (most specific first)
 	serviceNames := []string{"muc-server", "muc-nats", "nats"}
-	if envService := os.Getenv("NATS_DISCOVERY_SERVICE"); envService != "" {
+	if envService := os.Getenv("MUC_NATS_DISCOVERY_SERVICE"); envService != "" {
 		// If explicitly set, use only that service name
 		serviceNames = []string{envService}
 	}
 
 	// Get domain from environment or use defaults
 	domains := []string{}
-	if domain := os.Getenv("NATS_DISCOVERY_DOMAIN"); domain != "" {
+	if domain := os.Getenv("MUC_NATS_DISCOVERY_DOMAIN"); domain != "" {
 		domains = []string{domain}
 	} else {
 		// Try common domain patterns
@@ -162,10 +162,10 @@ func discoverViaDNS() string {
 
 // discoverViaConsul attempts to discover the NATS server using Consul service discovery.
 // It looks for a service named "nats" or "muc-nats" in Consul.
-// Consul address can be specified via CONSUL_HTTP_ADDR or defaults to localhost:8500.
+// Consul address can be specified via MUC_CONSUL_HTTP_ADDR or defaults to localhost:8500.
 func discoverViaConsul() string {
 	// Check if Consul client is available (we'll use HTTP API, no need for full client library)
-	consulAddr := os.Getenv("CONSUL_HTTP_ADDR")
+	consulAddr := os.Getenv("MUC_CONSUL_HTTP_ADDR")
 	if consulAddr == "" {
 		consulAddr = "localhost:8500"
 	}
@@ -181,7 +181,7 @@ func discoverViaConsul() string {
 	// Consul is available, query it via HTTP API
 	// Service names to try
 	serviceNames := []string{"nats", "muc-nats", "muc-server"}
-	if envService := os.Getenv("NATS_CONSUL_SERVICE"); envService != "" {
+	if envService := os.Getenv("MUC_NATS_CONSUL_SERVICE"); envService != "" {
 		serviceNames = []string{envService}
 	}
 

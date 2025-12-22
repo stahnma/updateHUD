@@ -60,10 +60,10 @@ make fmt       # Format code
 The server can be configured via environment variables and CLI flags:
 
 **Environment Variables:**
-- `NATS_URL`: NATS server URL (default: `embedded` - runs embedded NATS server)
-- `NATS_PORT`: Port for embedded NATS server (default: `4222`)
-- `DB_PATH`: Path to BoltDB database file (default: `systems.db`)
-- `HTTP_PORT`: Web server port (default: `8080`)
+- `MUC_NATS_URL`: NATS server URL (default: `embedded` - runs embedded NATS server)
+- `MUC_NATS_PORT`: Port for embedded NATS server (default: `4222`)
+- `MUC_DB_PATH`: Path to BoltDB database file (default: `systems.db`)
+- `MUC_HTTP_PORT`: Web server port (default: `8080`)
 
 **CLI Flags:**
 - `--dev`: Enable dev mode (debug logging enabled)
@@ -71,8 +71,8 @@ The server can be configured via environment variables and CLI flags:
 
 Example:
 ```bash
-export HTTP_PORT=3000
-export DB_PATH=/var/lib/updateHUD/systems.db
+export MUC_HTTP_PORT=3000
+export MUC_DB_PATH=/var/lib/muc/systems.db
 ./server --dev
 ```
 
@@ -80,20 +80,20 @@ export DB_PATH=/var/lib/updateHUD/systems.db
 
 The client supports automatic server discovery using multiple methods, tried in order:
 
-1. **Environment Variable Override**: `NATS_URL` (highest priority)
+1. **Environment Variable Override**: `MUC_NATS_URL` (highest priority)
 2. **DNS SRV Records**: Looks for `_muc-server._tcp`, `_muc-nats._tcp`, or `_nats._tcp` service records (tried in order)
 3. **Consul Service Discovery**: Queries Consul for `nats`, `muc-nats`, or `muc-server` services (tried in order, most generic first)
-4. **Environment Variable Fallback**: `NATS_SERVER_IP` with default port 4222
+4. **Environment Variable Fallback**: `MUC_NATS_SERVER_IP` with default port 4222
 5. **Hardcoded Default**: `192.168.1.157:4222` (last resort)
 
 **Environment Variables:**
-- `NATS_URL`: NATS server URL (e.g., `nats://192.168.1.157:4222`) - **explicit override, highest priority**
-- `NATS_SERVER_IP`: NATS server IP address (fallback if discovery fails)
-- `NATS_PORT`: NATS server port (default: `4222`)
-- `NATS_DISCOVERY_DOMAIN`: Domain for DNS SRV lookup (default: tries hostname domain, `local`, `lan`, `home.arpa`)
-- `NATS_DISCOVERY_SERVICE`: Service name for DNS SRV lookup (default: tries `muc-server`, `muc-nats`, `nats` in order)
-- `CONSUL_HTTP_ADDR`: Consul API address (default: `localhost:8500`)
-- `NATS_CONSUL_SERVICE`: Consul service name to query (default: tries `nats`, `muc-nats`, `muc-server` in order)
+- `MUC_NATS_URL`: NATS server URL (e.g., `nats://192.168.1.157:4222`) - **explicit override, highest priority**
+- `MUC_NATS_SERVER_IP`: NATS server IP address (fallback if discovery fails)
+- `MUC_NATS_PORT`: NATS server port (default: `4222`)
+- `MUC_NATS_DISCOVERY_DOMAIN`: Domain for DNS SRV lookup (default: tries hostname domain, `local`, `lan`, `home.arpa`)
+- `MUC_NATS_DISCOVERY_SERVICE`: Service name for DNS SRV lookup (default: tries `muc-server`, `muc-nats`, `nats` in order)
+- `MUC_CONSUL_HTTP_ADDR`: Consul API address (default: `localhost:8500`)
+- `MUC_NATS_CONSUL_SERVICE`: Consul service name to query (default: tries `nats`, `muc-nats`, `muc-server` in order)
 
 **CLI Flags:**
 - `--dev`: Enable dev mode (debug logging enabled)
@@ -103,7 +103,7 @@ The client supports automatic server discovery using multiple methods, tried in 
 
 Explicit configuration:
 ```bash
-export NATS_URL=nats://192.168.1.157:4222
+export MUC_NATS_URL=nats://192.168.1.157:4222
 ./client --dev
 ```
 
@@ -114,12 +114,12 @@ DNS SRV record discovery (requires DNS configuration):
 # - _muc-nats._tcp.example.com
 # - _nats._tcp.example.com (generic, tried last)
 # Example: _muc-server._tcp.example.com -> server.example.com:4222
-export NATS_DISCOVERY_DOMAIN=example.com
+export MUC_NATS_DISCOVERY_DOMAIN=example.com
 ./client
 
 # Or specify a specific service name:
-export NATS_DISCOVERY_DOMAIN=example.com
-export NATS_DISCOVERY_SERVICE=muc-server
+export MUC_NATS_DISCOVERY_DOMAIN=example.com
+export MUC_NATS_DISCOVERY_SERVICE=muc-server
 ./client
 ```
 
@@ -127,8 +127,8 @@ Consul service discovery:
 ```bash
 # Ensure Consul is running and service is registered
 # Service names tried in order: nats, muc-nats, muc-server
-export CONSUL_HTTP_ADDR=consul.example.com:8500
-export NATS_CONSUL_SERVICE=nats  # Optional: specify a specific service name
+export MUC_CONSUL_HTTP_ADDR=consul.example.com:8500
+export MUC_NATS_CONSUL_SERVICE=nats  # Optional: specify a specific service name
 ./client
 ```
 
@@ -173,7 +173,7 @@ The client can be run as a systemd service. See `client/contrib/systemd.unit` fo
    # Or with dev mode for debug logging:
    ./server --dev
    ```
-   The web interface will be available at `http://localhost:8080` (or your configured HTTP_PORT).
+   The web interface will be available at `http://localhost:8080` (or your configured MUC_HTTP_PORT).
 
 2. **Run clients on each machine**:
    ```bash
