@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"os"
+	"server/metrics"
 	"server/models"
 	"server/storage"
 	"time"
@@ -21,12 +22,16 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 		nats.RetryOnFailedConnect(true), // Retry if initial connection fails
 		nats.MaxReconnects(5),           // Attempt to reconnect up to 5 times
 		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+			metrics.NATSConnectionStatus.Set(0)
 			slog.Error("Disconnected from NATS", "error", err)
 		}),
 		nats.ReconnectHandler(func(nc *nats.Conn) {
+			metrics.NATSReconnects.Inc()
+			metrics.NATSConnectionStatus.Set(1)
 			slog.Info("Reconnected to NATS", "url", nc.ConnectedUrl())
 		}),
 		nats.ClosedHandler(func(nc *nats.Conn) {
+			metrics.NATSConnectionStatus.Set(0)
 			slog.Info("Connection to NATS closed", "reason", nc.LastError())
 		}),
 	)
@@ -35,6 +40,7 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 		os.Exit(1)
 	}
 	defer nc.Close()
+	metrics.NATSConnectionStatus.Set(1) // Set initial connection status
 	slog.Info("Successfully connected to NATS", "url", nc.ConnectedUrl())
 	slog.Debug("Server ID", "id", nc.ConnectedServerId())
 	slog.Debug("Client ID", "id", nc.ConnectedClusterName())
@@ -43,6 +49,14 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 	subject := "systems.updates.>"
 	slog.Debug("Subscribing to subject pattern", "subject", subject)
 	sub, err := nc.Subscribe(subject, func(m *nats.Msg) {
+		start := time.Now()
+
+		// Record message received
+		metrics.NATSMessagesReceived.WithLabelValues(m.Subject).Inc()
+
+		// Update connection status
+		metrics.NATSConnectionStatus.Set(1)
+
 		slog.Debug("Received NATS Message", "subject", m.Subject, "reply", m.Reply, "size", len(m.Data))
 		slog.Debug("Raw message", "data", string(m.Data))
 
@@ -86,6 +100,10 @@ func StartSubscriber(store storage.Storage, natsURL string) {
 				slog.Debug("Successfully saved system data", "hostname", system.Hostname, "duration_ms", duration.Milliseconds())
 			}
 		}
+
+		// Record processing duration
+		duration := time.Since(start).Seconds()
+		metrics.NATSMessagesReceivedDuration.WithLabelValues(m.Subject).Observe(duration)
 	})
 	if err != nil {
 		slog.Error("Failed to subscribe to subject", "subject", subject, "error", err)

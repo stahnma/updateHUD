@@ -165,6 +165,84 @@
             </div>
         </div>
 
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/metrics</span>
+            </div>
+            <div class="description">
+                Prometheus metrics endpoint. Returns metrics in Prometheus exposition format for monitoring and observability.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Response</div>
+                <div class="response-item">
+                    <span class="response-code success">200 OK</span>
+                    <span>Returns metrics in Prometheus text format</span>
+                </div>
+                <div class="param">
+                    <div class="param-name">Content-Type</div>
+                    <div class="param-desc">text/plain; version=0.0.4; charset=utf-8</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Available Metrics</div>
+                <div class="param">
+                    <div class="param-name">HTTP Metrics</div>
+                    <div class="param-desc">
+                        <strong>http_requests_total</strong>: Total HTTP requests by method, route, and status code<br>
+                        <strong>http_request_duration_seconds</strong>: HTTP request duration histogram
+                    </div>
+                </div>
+                <div class="param">
+                    <div class="param-name">NATS Metrics</div>
+                    <div class="param-desc">
+                        <strong>nats_messages_received_total</strong>: Total NATS messages received by subject<br>
+                        <strong>nats_message_processing_duration_seconds</strong>: NATS message processing duration<br>
+                        <strong>nats_connection_connected</strong>: NATS connection status (1 = connected, 0 = disconnected)<br>
+                        <strong>nats_reconnects_total</strong>: Total NATS reconnection attempts
+                    </div>
+                </div>
+                <div class="param">
+                    <div class="param-name">Storage Metrics</div>
+                    <div class="param-desc">
+                        <strong>storage_operation_duration_seconds</strong>: Storage operation duration by operation type<br>
+                        <strong>storage_operation_errors_total</strong>: Storage operation errors by operation type
+                    </div>
+                </div>
+                <div class="param">
+                    <div class="param-name">WebSocket Metrics</div>
+                    <div class="param-desc">
+                        <strong>websocket_connections_active</strong>: Number of active WebSocket connections<br>
+                        <strong>websocket_messages_broadcast_total</strong>: Total WebSocket messages broadcast<br>
+                        <strong>websocket_broadcast_duration_seconds</strong>: WebSocket broadcast duration
+                    </div>
+                </div>
+                <div class="param">
+                    <div class="param-name">Business Metrics</div>
+                    <div class="param-desc">
+                        <strong>systems_monitored_total</strong>: Total number of systems being monitored<br>
+                        <strong>systems_with_updates_total</strong>: Number of systems with pending updates<br>
+                        <strong>pending_updates_total</strong>: Total number of pending updates across all systems
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Example Usage</div>
+                <div class="code-block"># Scrape metrics with Prometheus
+# Add to prometheus.yml:
+scrape_configs:
+  - job_name: 'mqttfun-server'
+    static_configs:
+      - targets: ['localhost:8080']
+
+# Or view directly in browser
+curl http://localhost:8080/metrics</div>
+            </div>
+        </div>
+
         <div class="section">
             <div class="section-title">Data Models</div>
             

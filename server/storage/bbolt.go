@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"server/metrics"
 	"server/models"
 	"sync"
 	"time"
@@ -33,6 +34,12 @@ func NewBboltStorage(dbPath string) (*BboltStorage, error) {
 }
 
 func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.StorageOperationDuration.WithLabelValues("save_system").Observe(duration)
+	}()
+
 	s.Lock()
 	defer s.Unlock()
 	system.LastSeen = time.Now().UTC().Format(time.RFC3339) // Ensure UTC timestamp
@@ -49,6 +56,7 @@ func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 		return bucket.Put([]byte(hostname), data)
 	})
 	if err != nil {
+		metrics.StorageOperationErrors.WithLabelValues("save_system").Inc()
 		slog.Error("Failed to save system", "error", err)
 		return err
 	}
@@ -83,6 +91,12 @@ func (s *BboltStorage) SaveSystem(hostname string, system models.System) error {
 }
 
 func (s *BboltStorage) GetSystem(hostname string) (models.System, error) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.StorageOperationDuration.WithLabelValues("get_system").Observe(duration)
+	}()
+
 	var system models.System
 
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -104,6 +118,7 @@ func (s *BboltStorage) GetSystem(hostname string) (models.System, error) {
 	})
 
 	if err != nil {
+		metrics.StorageOperationErrors.WithLabelValues("get_system").Inc()
 		return models.System{}, err
 	}
 
@@ -111,6 +126,12 @@ func (s *BboltStorage) GetSystem(hostname string) (models.System, error) {
 }
 
 func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.StorageOperationDuration.WithLabelValues("get_all_systems").Observe(duration)
+	}()
+
 	var systems []models.System
 
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -134,6 +155,7 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 	})
 
 	if err != nil {
+		metrics.StorageOperationErrors.WithLabelValues("get_all_systems").Inc()
 		return nil, err
 	}
 
@@ -141,6 +163,12 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 }
 
 func (s *BboltStorage) DeleteSystem(hostname string) error {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.StorageOperationDuration.WithLabelValues("delete_system").Observe(duration)
+	}()
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -160,6 +188,7 @@ func (s *BboltStorage) DeleteSystem(hostname string) error {
 	})
 
 	if err != nil {
+		metrics.StorageOperationErrors.WithLabelValues("delete_system").Inc()
 		slog.Error("Failed to delete system", "hostname", hostname, "error", err)
 		return err
 	}

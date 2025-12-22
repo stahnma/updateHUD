@@ -8,12 +8,14 @@ import (
 	"net/http"
 	"os"
 	"server/api"
+	"server/metrics"
 	"server/storage"
 	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 //go:embed templates/*
@@ -99,6 +101,12 @@ func (m *wsConnectionManager) remove(wrapped *wsConn) {
 }
 
 func (m *wsConnectionManager) broadcast(update interface{}) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.WebSocketBroadcastDuration.Observe(duration)
+	}()
+
 	// Create a snapshot of connections while holding the read lock
 	m.RLock()
 	conns := make([]*wsConn, 0, len(m.connections))
@@ -126,11 +134,19 @@ func (m *wsConnectionManager) broadcast(update interface{}) {
 			}
 		}(wrapped)
 	}
+
+	metrics.WebSocketMessagesBroadcast.Inc()
 }
 
 func StartWebServer(store storage.Storage, port string) {
 	r := mux.NewRouter()
 	connManager := newWSConnectionManager()
+
+	// Apply Prometheus middleware to all routes
+	r.Use(prometheusMiddleware)
+
+	// Prometheus metrics endpoint (before other routes to avoid middleware)
+	r.Handle("/metrics", promhttp.Handler()).Methods("GET")
 
 	// Serve static files (JS, CSS) from embedded filesystem
 	// The embedded FS includes the "static/" prefix, so we need to use a subdirectory
@@ -187,6 +203,7 @@ func StartWebServer(store storage.Storage, port string) {
 
 		// Add connection to manager and get wrapped connection
 		wrappedConn := connManager.add(conn)
+		metrics.WebSocketConnections.Inc() // Increment on connect
 		slog.Debug("New WebSocket connection established", "remote_addr", conn.RemoteAddr())
 
 		// Create a context for the ping ticker to allow graceful shutdown
@@ -216,7 +233,8 @@ func StartWebServer(store storage.Storage, port string) {
 		// Cleanup on exit
 		defer func() {
 			slog.Debug("WebSocket connection closing")
-			pingCancel() // Signal ping ticker to stop
+			pingCancel()                       // Signal ping ticker to stop
+			metrics.WebSocketConnections.Dec() // Decrement on disconnect
 			connManager.remove(wrappedConn)
 			wrappedConn.close()
 		}()

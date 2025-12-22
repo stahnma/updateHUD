@@ -4,10 +4,12 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"server/metrics"
 	"server/nats"
 	"server/storage"
 	"server/web"
 	"syscall"
+	"time"
 
 	natsServer "github.com/nats-io/nats-server/v2/server"
 )
@@ -58,6 +60,37 @@ func main() {
 	// Start the web server
 	slog.Info("Starting web server...")
 	go web.StartWebServer(store, config.HTTPPort)
+
+	// Start business metrics updater
+	go func() {
+		ticker := time.NewTicker(30 * time.Second) // Update every 30 seconds
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				systems, err := store.GetAllSystems()
+				if err != nil {
+					slog.Error("Failed to update business metrics", "error", err)
+					continue
+				}
+
+				metrics.SystemsMonitored.Set(float64(len(systems)))
+
+				systemsWithUpdates := 0
+				totalUpdates := 0
+				for _, system := range systems {
+					if system.UpdatesAvailable {
+						systemsWithUpdates++
+						totalUpdates += len(system.PendingUpdates)
+					}
+				}
+
+				metrics.SystemsWithUpdates.Set(float64(systemsWithUpdates))
+				metrics.TotalPendingUpdates.Set(float64(totalUpdates))
+			}
+		}
+	}()
 
 	// Wait for interrupt signal to gracefully shutdown
 	sigChan := make(chan os.Signal, 1)

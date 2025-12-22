@@ -14,6 +14,7 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/nats-io/nats.go"
+	"github.com/stahnma/mqttfun/client/metrics"
 	"github.com/stahnma/mqttfun/client/updates"
 )
 
@@ -87,7 +88,23 @@ func collectSystemData() (System, error) {
 	}
 
 	// Pending Updates
+	updateStart := time.Now()
 	updateResult := updates.GetPendingUpdates()
+	updateDuration := time.Since(updateStart).Seconds()
+
+	// Record update check duration (we'll use "unknown" if no manager detected)
+	packageManager := "unknown"
+	if updateResult.ManagerDetected {
+		if runtime.GOOS == "darwin" {
+			packageManager = "brew"
+		} else if runtime.GOOS == "linux" {
+			// Try to detect which Linux package manager was used
+			// This is approximate - we check which one detected updates
+			packageManager = "linux"
+		}
+	}
+	metrics.UpdateCheckDuration.WithLabelValues(packageManager).Observe(updateDuration)
+
 	system.PendingUpdates = updateResult.Updates
 	system.UpdateStatusUnknown = !updateResult.ManagerDetected
 	if updateResult.ManagerDetected {
@@ -107,12 +124,21 @@ func collectSystemData() (System, error) {
 
 // Publishes system data to NATS
 func sendSystemUpdate(nc *nats.Conn) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		metrics.NATSPublishDuration.Observe(duration)
+	}()
+
 	// Collect system data
 	system, err := collectSystemData()
 	if err != nil {
 		slog.Error("Failed to collect system data", "error", err)
 		return
 	}
+
+	// Update pending updates count metric
+	metrics.PendingUpdatesCount.Set(float64(len(system.PendingUpdates)))
 
 	// Marshal system data to JSON
 	data, err := json.Marshal(system)
@@ -169,6 +195,7 @@ func sendSystemUpdate(nc *nats.Conn) {
 			}
 			return
 		}
+		metrics.NATSMessagesPublished.Inc()
 		slog.Info("Successfully published to subject", "subject", subject)
 
 		// Try to flush with timeout using context
@@ -274,6 +301,8 @@ func main() {
 			nats.MaxReconnects(-1),            // Unlimited reconnections
 			nats.ReconnectWait(5*time.Second), // Wait 5 seconds between reconnection attempts
 			nats.ReconnectHandler(func(nc *nats.Conn) {
+				metrics.NATSReconnects.Inc()
+				metrics.NATSConnectionStatus.Set(1)
 				slog.Info("Reconnected to NATS", "url", nc.ConnectedUrl())
 				slog.Debug("Connection statistics",
 					"reconnects", nc.Stats().Reconnects,
@@ -281,6 +310,7 @@ func main() {
 					"messages_out", nc.Stats().OutMsgs)
 			}),
 			nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+				metrics.NATSConnectionStatus.Set(0)
 				if err != nil {
 					slog.Error("Disconnected from NATS due to error", "error", err)
 				} else {
@@ -288,6 +318,7 @@ func main() {
 				}
 			}),
 			nats.ClosedHandler(func(nc *nats.Conn) {
+				metrics.NATSConnectionStatus.Set(0)
 				slog.Info("Connection to NATS closed", "reason", nc.LastError())
 				slog.Debug("Final connection statistics",
 					"reconnects", nc.Stats().Reconnects,
@@ -321,6 +352,7 @@ func main() {
 	}
 	defer nc.Close()
 
+	metrics.NATSConnectionStatus.Set(1) // Set initial connection status
 	slog.Info("Successfully connected to NATS", "url", nc.ConnectedUrl())
 	slog.Debug("Server ID", "id", nc.ConnectedServerId())
 
