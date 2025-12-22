@@ -53,6 +53,12 @@ func getLinuxUpdates() UpdateResult {
 		allUpdates = append(allUpdates, yumResult.Updates...)
 	}
 
+	nixosResult := getNixosUpdates()
+	if nixosResult.ManagerDetected {
+		managerDetected = true
+		allUpdates = append(allUpdates, nixosResult.Updates...)
+	}
+
 	return UpdateResult{
 		Updates:         allUpdates,
 		ManagerDetected: managerDetected,

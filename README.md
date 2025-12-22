@@ -12,7 +12,7 @@ This project monitors system updates across multiple machines in your network:
 ## Supported Systems
 
 ### Package Managers
-- **Linux**: apt (Debian/Ubuntu), dnf (Fedora/RHEL), yum (older RHEL/CentOS)
+- **Linux**: apt (Debian/Ubuntu), dnf (Fedora/RHEL), yum (older RHEL/CentOS), nixos-rebuild (NixOS)
 - **macOS**: Homebrew (brew)
 
 ### Platforms
