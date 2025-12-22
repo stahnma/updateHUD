@@ -140,6 +140,34 @@ func (s *BboltStorage) GetAllSystems() ([]models.System, error) {
 	return systems, nil
 }
 
+func (s *BboltStorage) DeleteSystem(hostname string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("systems"))
+		if bucket == nil {
+			return fmt.Errorf("bucket 'systems' not found")
+		}
+
+		// Check if system exists before deleting
+		data := bucket.Get([]byte(hostname))
+		if data == nil {
+			return fmt.Errorf("system with hostname '%s' not found", hostname)
+		}
+
+		return bucket.Delete([]byte(hostname))
+	})
+
+	if err != nil {
+		slog.Error("Failed to delete system", "hostname", hostname, "error", err)
+		return err
+	}
+
+	slog.Info("System deleted", "hostname", hostname)
+	return nil
+}
+
 func (s *BboltStorage) SubscribeToUpdates() <-chan models.System {
 	return s.updates
 }

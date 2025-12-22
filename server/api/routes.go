@@ -97,3 +97,39 @@ func GetSystemHandler(store storage.Storage) http.HandlerFunc {
 		}
 	}
 }
+
+// DeleteSystemHandler deletes a system from storage
+func DeleteSystemHandler(store storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Get the hostname from the URL
+		vars := mux.Vars(r)
+		hostname := strings.TrimSpace(vars["hostname"])
+
+		if hostname == "" {
+			http.Error(w, "Hostname is required", http.StatusBadRequest)
+			return
+		}
+
+		// Delete the system from storage
+		err := store.DeleteSystem(hostname)
+		if err != nil {
+			slog.Error("Failed to delete system", "hostname", hostname, "error", err)
+			// Check if it's a "not found" error
+			if strings.Contains(err.Error(), "not found") {
+				http.Error(w, "System not found", http.StatusNotFound)
+			} else {
+				http.Error(w, "Failed to delete system", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		// Return success response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":   "success",
+			"message":  "System deleted successfully",
+			"hostname": hostname,
+		})
+	}
+}

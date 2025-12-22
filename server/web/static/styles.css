@@ -298,3 +298,19 @@ th:hover {
     margin-right: 4px;
 }
 
+/* Delete button styles */
+.delete-system-btn {
+    background-color: #dc3545 !important;
+    transition: background-color 0.2s ease;
+}
+
+.delete-system-btn:hover {
+    background-color: #c82333 !important;
+}
+
+.delete-system-btn:disabled {
+    background-color: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+

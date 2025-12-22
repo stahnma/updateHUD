@@ -495,6 +495,72 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Helper function to calculate stale days
+    function getStaleDays(isoTimestamp) {
+        if (!isoTimestamp) return Infinity;
+        const now = new Date();
+        const then = new Date(isoTimestamp);
+        const diffMs = now - then;
+        return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    // Handle system deletion
+    function handleDeleteSystem(event) {
+        const hostname = event.target.dataset.hostname;
+        if (!hostname) {
+            console.error("No hostname found for delete button");
+            return;
+        }
+
+        // Show confirmation dialog
+        const confirmed = confirm(
+            `Are you sure you want to delete "${hostname}"?\n\n` +
+            `This action cannot be undone. The system will be removed from the database.\n\n` +
+            `If the system is still running, it will reappear when it checks in again.`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        // Disable button during deletion
+        event.target.disabled = true;
+        event.target.textContent = "Deleting...";
+
+        // Send DELETE request
+        fetch(`/api/systems/${encodeURIComponent(hostname)}`, {
+            method: 'DELETE',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Failed to delete system: ${response.status} - ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("System deleted successfully", data);
+                
+                // Remove system from local data
+                const index = systemsData.findIndex(s => s && s.hostname === hostname);
+                if (index !== -1) {
+                    systemsData.splice(index, 1);
+                }
+                
+                // Re-render the table (this will remove the deleted system)
+                renderSystems(Array.from(systemsData));
+            })
+            .catch((error) => {
+                console.error(`Failed to delete system ${hostname}:`, error);
+                alert(`Failed to delete system: ${error.message}`);
+                
+                // Re-enable button
+                event.target.disabled = false;
+                event.target.textContent = "🗑️ Delete System";
+            });
+    }
+
     // Function to load system details
     function loadSystemDetails(hostname, detailsContent) {
         fetch(`/api/systems/${hostname}`)
@@ -505,19 +571,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 return response.json();
             })
             .then((data) => {
+                let detailsHTML = '';
+                
+                // Add delete button
+                const isStale = isStaleCheckIn(data.last_seen);
+                const staleDays = getStaleDays(data.last_seen);
+                const deleteButtonHTML = `
+                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                        <button class="delete-system-btn" data-hostname="${escapeHtml(hostname)}" 
+                                style="background-color: #dc3545; padding: 8px 16px; border-radius: 4px; border: none; color: white; cursor: pointer; font-size: 14px;">
+                            🗑️ Delete System
+                        </button>
+                        ${isStale && staleDays >= 7 ? 
+                            '<span style="margin-left: 10px; color: #dc3545; font-size: 0.9em;">⚠️ This system has not checked in for ' + staleDays + ' days</span>' : 
+                            ''}
+                    </div>
+                `;
+                
                 if (data.pending_updates && data.pending_updates.length > 0) {
                     const updatesList = data.pending_updates
                         .map(
                             (update) =>
                                 `<tr>
-                                    <td>${update.name}</td>
-                                    <td>${update.version || "N/A"}</td>
-                                    <td>${update.source}</td>
+                                    <td>${escapeHtml(update.name)}</td>
+                                    <td>${escapeHtml(update.version || "N/A")}</td>
+                                    <td>${escapeHtml(update.source)}</td>
                                 </tr>`
                         )
                         .join("");
-                    detailsContent.innerHTML = `
-                        <h3>Pending Updates for ${data.hostname}</h3>
+                    detailsHTML = `
+                        ${deleteButtonHTML}
+                        <h3>Pending Updates for ${escapeHtml(data.hostname)}</h3>
                         <table class="updates-table">
                             <thead>
                                 <tr>
@@ -532,17 +616,27 @@ document.addEventListener("DOMContentLoaded", () => {
                         </table>
                     `;
                 } else if (data.update_status_unknown) {
-                    detailsContent.innerHTML = `
-                        <h3>Update status unknown for ${data.hostname}</h3>
+                    detailsHTML = `
+                        ${deleteButtonHTML}
+                        <h3>Update status unknown for ${escapeHtml(data.hostname)}</h3>
                         <p>No supported package manager was detected on this system. The update status cannot be determined.</p>
                     `;
                 } else {
-                    detailsContent.innerHTML = `
-                        <h3>No pending updates for ${data.hostname}</h3>
+                    detailsHTML = `
+                        ${deleteButtonHTML}
+                        <h3>No pending updates for ${escapeHtml(data.hostname)}</h3>
                     `;
                 }
+                
+                detailsContent.innerHTML = detailsHTML;
                 detailsContent.dataset.loaded = "true";
                 detailsContent.dataset.loadedTime = Date.now();
+                
+                // Attach delete button event listener
+                const deleteBtn = detailsContent.querySelector('.delete-system-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', handleDeleteSystem);
+                }
             })
             .catch((error) => {
                 console.error(`Failed to fetch system details for ${hostname}:`, error);

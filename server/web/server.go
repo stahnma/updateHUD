@@ -152,6 +152,7 @@ func StartWebServer(store storage.Storage, port string) {
 	// API routes
 	r.HandleFunc("/api/systems", api.GetSystemsHandler(store)).Methods("GET")
 	r.HandleFunc("/api/systems/{hostname}", api.GetSystemHandler(store)).Methods("GET")
+	r.HandleFunc("/api/systems/{hostname}", api.DeleteSystemHandler(store)).Methods("DELETE")
 
 	// Serve the main page from embedded filesystem
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
