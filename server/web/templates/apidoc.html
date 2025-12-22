@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Documentation - MQTTFun</title>
+    <script>
+        // Apply theme immediately to prevent flash of unstyled content
+        (function() {
+            const theme = localStorage.getItem('mqttfun-theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/static/apidoc.css">
+    <script src="/static/theme.js" defer></script>
 </head>
 <body>
+    <button id="theme-toggle-btn" class="theme-toggle" aria-label="Switch theme">☀️</button>
     <div class="container">
         <h1>API Documentation</h1>
         <p class="subtitle">MQTTFun Server API Reference</p>

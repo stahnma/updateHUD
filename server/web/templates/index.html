@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Updates</title>
+    <script>
+        // Apply theme immediately to prevent flash of unstyled content
+        (function() {
+            const theme = localStorage.getItem('mqttfun-theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/theme.js" defer></script>
     <script src="/static/app.js?v=3" defer></script>
      <script defer>
         document.addEventListener('DOMContentLoaded', () => {
@@ -44,6 +55,7 @@
     </script>
 </head>
 <body>
+    <button id="theme-toggle-btn" class="theme-toggle" aria-label="Switch theme">☀️</button>
     <h1>System Updates</h1>
     <div class="controls">
         <button id="expand-all-btn">Expand All</button>
